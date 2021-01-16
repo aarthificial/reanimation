@@ -160,11 +160,21 @@ namespace Aarthificial.Reanimation.Tests
             Reanimator.Set(driverName, driverValue);
             Reanimator.Set(floatDriverName, floatDriverValue);
             Reanimator.Set(boolDriverName, boolDriverValue);
+
+            bool willChange = Reanimator.WillChange(driverName, driverValue);
+            bool boolWillChange = Reanimator.WillChange(boolDriverName);
+            bool floatWillChange = Reanimator.WillChange(floatDriverName);
+            
+            Reanimator.ForceRerender();
+            
             int receivedValue = Reanimator.State.Get(driverName);
             bool receivedBoolValue = Reanimator.State.GetBool(boolDriverName);
             float receivedFloatValue = Reanimator.State.GetFloat(floatDriverName);
 
             IsTestFinished = true;
+            Assert.IsTrue(willChange);
+            Assert.IsTrue(boolWillChange);
+            Assert.IsTrue(floatWillChange);
             Assert.AreEqual(driverValue, receivedValue);
             Assert.AreEqual(boolDriverValue, receivedBoolValue);
             Assert.AreEqual(floatDriverValue, receivedFloatValue, 0.00001);
