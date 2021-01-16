@@ -1,0 +1,13 @@
+{
+  "name": "com.aarthificial.reanimation",
+  "version": "0.0.1",
+  "displayName": "Reanimation",
+  "description": "Keyframe-based animator",
+  "unity": "2020.2",
+  "author": {
+    "name": "Jacob",
+    "email": "aarthificial+business@gmail.com",
+    "url": "https://www.youtube.com/aarthificial"
+  },
+  "type": "library"
+}
