@@ -1,19 +1,23 @@
 ﻿using System;
+using Aarthificial.Reanimation.Common;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.KeyFrames
+namespace Aarthificial.Reanimation.Cels
 {
     [Serializable]
-    public class MirroredKeyFrame : KeyFrame
+    public class MirroredCel : ICel
     {
+        [SerializeField] protected Sprite sprite;
+        [SerializeField] protected DriverDictionary drivers = new DriverDictionary();
         [SerializeField] private Sprite spriteLeft;
 
-        public override void ApplyToRenderer(
+        public void ApplyToRenderer(
             ReanimatorState previousState,
             ReanimatorState nextState,
             SpriteRenderer renderer
         )
         {
+            nextState.Merge(drivers);
             renderer.sprite = previousState.ShouldFlip() ? spriteLeft : sprite;
             renderer.flipX = false;
         }

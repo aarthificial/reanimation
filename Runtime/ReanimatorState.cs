@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Aarthificial.Reanimation.Common;
+using Aarthificial.Reanimation.Nodes;
+using UnityEngine;
 
 namespace Aarthificial.Reanimation
 {
@@ -77,6 +80,9 @@ namespace Aarthificial.Reanimation
         public void Clear()
         {
             _drivers.Clear();
+#if UNITY_EDITOR
+            _trace.Clear();
+#endif
         }
 
         public void Merge(ReanimatorState state)
@@ -100,5 +106,15 @@ namespace Aarthificial.Reanimation
         {
             return GetEnumerator();
         }
+
+#if UNITY_EDITOR
+        private readonly List<ReanimatorNode> _trace = new List<ReanimatorNode>();
+        public ReanimatorNode LastTracedNode => _trace[_trace.Count - 1];
+        
+        public void AddTrace(ReanimatorNode value)
+        {
+            _trace.Add(value);
+        }
+#endif
     }
 }

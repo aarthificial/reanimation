@@ -11,7 +11,7 @@ namespace Aarthificial.Reanimation.Nodes
         public TerminationNode toNode;
     }
 
-    [CreateAssetMenu(fileName = "override", menuName = "Reanimator/Override", order = 0)]
+    [CreateAssetMenu(fileName = "override", menuName = "Reanimator/Override", order = 400)]
     public class OverrideNode : ReanimatorNode
     {
         [SerializeField] private ReanimatorNode next;
@@ -32,6 +32,7 @@ namespace Aarthificial.Reanimation.Nodes
 
         public override TerminationNode Resolve(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
         {
+            AddTrace(nextState);
             return GetOverrideFor(next.Resolve(previousState, nextState));
         }
 

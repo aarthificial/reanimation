@@ -2,19 +2,19 @@
 using Aarthificial.Reanimation.Common;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.KeyFrames
+namespace Aarthificial.Reanimation.Cels
 {
     [Serializable]
-    public class KeyFrame
+    public class SimpleCel : ICel
     {
         [SerializeField] protected Sprite sprite;
         [SerializeField] protected DriverDictionary drivers = new DriverDictionary();
 
-        public KeyFrame()
+        public SimpleCel()
         {
         }
 
-        public KeyFrame(Sprite sprite = null, DriverDictionary drivers = null)
+        public SimpleCel(Sprite sprite = null, DriverDictionary drivers = null)
         {
             if (sprite != null)
                 this.sprite = sprite;

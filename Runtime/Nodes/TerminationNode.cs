@@ -1,14 +1,9 @@
-﻿using Aarthificial.Reanimation.KeyFrames;
+﻿using Aarthificial.Reanimation.Cels;
 
 namespace Aarthificial.Reanimation.Nodes
 {
-    public abstract class TerminationNode : ControlNode
+    public abstract class TerminationNode : ReanimatorNode
     {
-        public sealed override TerminationNode Resolve(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
-        {
-            return this;
-        }
-
-        public abstract KeyFrame ResolveKeyframe(IReadOnlyReanimatorState previousState, ReanimatorState nextState);
+        public abstract ICel ResolveCel(IReadOnlyReanimatorState previousState, ReanimatorState nextState);
     }
 }

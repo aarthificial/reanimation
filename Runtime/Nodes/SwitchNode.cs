@@ -1,15 +1,21 @@
-﻿using UnityEngine;
+﻿using Aarthificial.Reanimation.Common;
+using UnityEngine;
 
 namespace Aarthificial.Reanimation.Nodes
 {
-    [CreateAssetMenu(fileName = "Switch", menuName = "Reanimator/Switch", order = 0)]
-    public class SwitchNode : ControlNode
+    [CreateAssetMenu(fileName = "switch", menuName = "Reanimator/Switch", order = 400)]
+    public class SwitchNode : ReanimatorNode
     {
-        public ReanimatorNode[] nodes;
+        [SerializeField] protected ReanimatorNode[] nodes;
+        [SerializeField] protected ControlDriver controlDriver = new ControlDriver();
+        [SerializeField] protected DriverDictionary drivers = new DriverDictionary();
 
         public override TerminationNode Resolve(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
         {
-            return nodes[ProcessDriver(previousState, nextState, nodes.Length)].Resolve(previousState, nextState);
+            AddTrace(nextState);
+            nextState.Merge(drivers);
+            return nodes[controlDriver.ResolveDriver(previousState, nextState, nodes.Length)]
+                .Resolve(previousState, nextState);
         }
     }
 }

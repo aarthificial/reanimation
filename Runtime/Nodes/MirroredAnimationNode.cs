@@ -1,10 +1,10 @@
-﻿using Aarthificial.Reanimation.KeyFrames;
+﻿using Aarthificial.Reanimation.Cels;
 using UnityEngine;
 
 namespace Aarthificial.Reanimation.Nodes
 {
-    [CreateAssetMenu(fileName = "Mirrored Animation", menuName = "Reanimator/Mirrored Animation", order = 0)]
-    public class MirroredAnimationNode : AnimationNode<MirroredKeyFrame>
+    [CreateAssetMenu(fileName = "mirrored_animation", menuName = "Reanimator/Mirrored Animation", order = 400)]
+    public class MirroredAnimationNode : AnimationNode<MirroredCel>
     {
     }
 }
