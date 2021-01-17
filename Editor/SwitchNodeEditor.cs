@@ -4,12 +4,13 @@ using UnityEditor;
 namespace Aarthificial.Reanimation.Editor
 {
     [CustomEditor(typeof(SwitchNode))]
-    public class SwitchNodeEditor : ControlNodeEditor
+    public class SwitchNodeEditor : ReanimatorNodeEditor
     {
-        protected override void OnEnable()
+        protected void OnEnable()
         {
-            base.OnEnable();
-            PropertiesToDraw.Add(serializedObject.FindProperty("nodes"));
+            AddCustomProperty("controlDriver");
+            AddCustomProperty("drivers");
+            AddCustomProperty("nodes");
         }
     }
 }

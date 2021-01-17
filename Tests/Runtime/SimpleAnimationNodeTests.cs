@@ -8,21 +8,22 @@ namespace Aarthificial.Reanimation.Tests
 {
     public class SimpleAnimationNodeTests
     {
-        private const string Driver = "testDriver";
+        private const string DriverName = "testDriver";
 
         private readonly ReanimatorState _previousState = new ReanimatorState();
         private readonly ReanimatorState _nextState = new ReanimatorState();
         private SimpleAnimationNode _testedNode;
         private SimpleCel[] _keyframes;
+        private ControlDriver _controlDriver;
 
         [SetUp]
         public void SetUp()
         {
+            _controlDriver = new ControlDriver(DriverName, true);
             _keyframes = new int[3].Select(_ => new SimpleCel()).ToArray();
             _testedNode = SimpleAnimationNode.Create<SimpleAnimationNode>(
-                true,
-                driver: Driver,
-                frames: _keyframes
+                _controlDriver,
+                _keyframes
             );
         }
 
@@ -63,7 +64,7 @@ namespace Aarthificial.Reanimation.Tests
         {
             _previousState.Clear();
             _nextState.Clear();
-            _previousState.Set(Driver, 2);
+            _previousState.Set(DriverName, 2);
 
             var frame = _testedNode.ResolveCel(_previousState, _nextState);
 

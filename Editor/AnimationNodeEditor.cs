@@ -17,7 +17,7 @@ namespace Aarthificial.Reanimation.Editor
         Remove,
     }
 
-    public class AnimationNodeEditor : ControlNodeEditor
+    public class AnimationNodeEditor : ReanimatorNodeEditor
     {
         protected static float FPS = 10;
         protected static int CurrentFrame = 0;
@@ -28,11 +28,11 @@ namespace Aarthificial.Reanimation.Editor
         private string _globalDriverName = "globalDriver";
         private int _globalDriverValue;
 
-        protected override void OnEnable()
+        protected void OnEnable()
         {
-            base.OnEnable();
-            Frames = serializedObject.FindProperty("frames");
-            PropertiesToDraw.Add(Frames);
+            AddCustomProperty("controlDriver");
+            AddCustomProperty("drivers");
+            Frames = AddCustomProperty("frames");
         }
         
         public override bool HasPreviewGUI()
@@ -45,8 +45,6 @@ namespace Aarthificial.Reanimation.Editor
             serializedObject.Update();
 
             DrawCustomProperties();
-            EditorGUILayout.Separator();
-            DrawControlOptions();
             EditorGUILayout.Separator();
             DrawGlobalDriverEditor();
             UpdateSpritesCache();

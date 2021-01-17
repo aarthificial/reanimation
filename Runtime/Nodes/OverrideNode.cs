@@ -32,6 +32,7 @@ namespace Aarthificial.Reanimation.Nodes
 
         public override TerminationNode Resolve(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
         {
+            AddTrace(nextState);
             return GetOverrideFor(next.Resolve(previousState, nextState));
         }
 
