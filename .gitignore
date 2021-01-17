@@ -98,3 +98,9 @@ $RECYCLE.BIN/
 
 # IDE
 .idea
+
+# Tests
+.tests
+!.tests/Assets
+!.tests/Packages
+!.tests/ProjectSettings

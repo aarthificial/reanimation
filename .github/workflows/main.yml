@@ -1,0 +1,51 @@
+﻿name: Tests
+
+on:
+  pull_request: {}
+  push: { branches: [ci-experiments] }
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+jobs:
+  build:
+    name: Build project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+
+      - name: Cache libraries
+        uses: actions/cache@v1.1.0
+        with:
+          path: .tests/Library
+          key: Library
+          
+      - name: Cache coverage date
+        uses: actions/cache@v1.1.0
+        with:
+          path: .tests/CodeCoverage
+          key: CodeCoverage
+
+      - name: Run tests
+        id: testStep
+        uses: game-ci/unity-test-runner@v2.0-alpha-2
+        with:
+          testMode: playmode
+          projectPath: .tests
+          unityVersion: 2020.2.0f1
+          customParameters: '-enableCodeCoverage -coverageOptions generateHtmlReport;generateHtmlReportHistory;generateAdditionalMetrics;assemblyFilters:+Unity.Reanimation'
+
+      - name: Save test results
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test results
+          path: ${{ steps.testStep.outputs.artifactsPath }}
+
+      - name: Save coverage data
+        uses: actions/upload-artifact@v1
+        with:
+          name: Code coverage
+          path: .tests/CodeCoverage/Report
