@@ -1,4 +1,4 @@
-﻿using Aarthificial.Reanimation.KeyFrames;
+﻿using Aarthificial.Reanimation.Cels;
 
 namespace Aarthificial.Reanimation.Nodes
 {
@@ -9,6 +9,10 @@ namespace Aarthificial.Reanimation.Nodes
             return this;
         }
 
-        public abstract KeyFrame ResolveKeyframe(IReadOnlyReanimatorState previousState, ReanimatorState nextState);
+        public virtual ICel ResolveCel(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
+        {
+            AddTrace(nextState);
+            return new InvalidCel();
+        }
     }
 }

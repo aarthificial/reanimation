@@ -1,6 +1,7 @@
 ﻿using System;
 using Aarthificial.Reanimation.Common;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Aarthificial.Reanimation.Nodes
 {
@@ -8,32 +9,35 @@ namespace Aarthificial.Reanimation.Nodes
     {
         [SerializeField] protected bool autoIncrement;
         [SerializeField] protected bool percentageBased;
-        [SerializeField] protected string driver;
+        [SerializeField] [FormerlySerializedAs("driver")] protected string driverName;
         [SerializeField] protected DriverDictionary drivers = new DriverDictionary();
         [HideInInspector] [SerializeField] protected string guid = Guid.NewGuid().ToString();
+        
+        protected string Driver;
 
         protected virtual void OnEnable()
         {
-            if (string.IsNullOrEmpty(driver))
-                driver = guid;
+            Driver = string.IsNullOrEmpty(driverName) ? guid : driverName;
         }
 
-        protected int ProcessDriver(IReadOnlyReanimatorState previousState, ReanimatorState nextState, int size)
+        protected int ResolveDriver(IReadOnlyReanimatorState previousState, ReanimatorState nextState, int size)
         {
+            if (size == 0) return 0;
+            
             nextState.Merge(drivers);
 
             if (percentageBased)
             {
-                float floatDriverValue = Mathf.Clamp01(previousState.GetFloat(driver));
+                float floatDriverValue = Mathf.Clamp01(previousState.GetFloat(Driver));
                 if (floatDriverValue < 1)
                     return Mathf.FloorToInt(floatDriverValue * size);
 
                 return size - 1;
             }
 
-            int driverValue = previousState.Get(driver) % size;
+            int driverValue = previousState.Get(Driver) % size;
             if (autoIncrement)
-                nextState.Set(driver, (driverValue + 1) % size);
+                nextState.Set(Driver, (driverValue + 1) % size);
 
             return driverValue;
         }

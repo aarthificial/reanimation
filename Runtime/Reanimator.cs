@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Aarthificial.Reanimation.Cels;
 using Aarthificial.Reanimation.Nodes;
 using UnityEngine;
 
@@ -29,6 +31,11 @@ namespace Aarthificial.Reanimation
         private readonly HashSet<string> _oneOffDrivers = new HashSet<string>();
         private float _clock;
 
+#if UNITY_EDITOR
+        private Color _lastColorBeforeInvalid;
+        private bool _wasInvalid;
+# endif
+
         private void Awake()
         {
             if (renderer == null)
@@ -49,9 +56,24 @@ namespace Aarthificial.Reanimation
         {
             _previousState.Merge(_nextState);
             _nextState.Clear();
-            root.Resolve(_previousState, _nextState)
-                .ResolveKeyframe(_previousState, _nextState)
-                .ApplyToRenderer(_previousState, _nextState, renderer);
+
+#if UNITY_EDITOR
+            Exception resolveException = null;
+            try
+            {
+#endif
+                root
+                    .Resolve(_previousState, _nextState)
+                    .ResolveCel(_previousState, _nextState)
+                    .ApplyToRenderer(_previousState, _nextState, renderer);
+#if UNITY_EDITOR
+            }
+            catch (Exception e)
+            {
+                resolveException = e;
+            }
+#endif
+
             foreach (string driver in _oneOffDrivers)
                 _previousState.Remove(driver);
 
@@ -60,6 +82,26 @@ namespace Aarthificial.Reanimation
                     listener.Value.Invoke();
 
             Ticked?.Invoke();
+
+#if UNITY_EDITOR
+            if (resolveException != null)
+            {
+                _wasInvalid = true;
+                _lastColorBeforeInvalid = renderer.color;
+                renderer.color = Color.magenta;
+
+                Debug.LogException(
+                    resolveException,
+                    _nextState.LastTracedNode
+                );
+            }
+
+            if (_wasInvalid && resolveException == null)
+            {
+                _wasInvalid = false;
+                renderer.color = _lastColorBeforeInvalid;
+            }
+#endif
         }
 
         public void Set(string key, int value)
@@ -107,7 +149,7 @@ namespace Aarthificial.Reanimation
         public void RemoveListener(string driverName, ReanimatorListener listener)
         {
             if (!_listeners.ContainsKey(driverName)) return;
-            
+
             _listeners[driverName] -= listener;
             if (_listeners[driverName] == null)
                 _listeners.Remove(driverName);

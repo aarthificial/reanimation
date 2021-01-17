@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using Aarthificial.Reanimation.Cels;
 using Aarthificial.Reanimation.Common;
-using Aarthificial.Reanimation.KeyFrames;
 using Aarthificial.Reanimation.Nodes;
 using NUnit.Framework;
 using UnityEngine;
@@ -17,7 +17,7 @@ namespace Aarthificial.Reanimation.Tests
         protected Reanimator Reanimator;
         protected SpriteRenderer Renderer;
         protected SimpleAnimationNode Root;
-        protected KeyFrame[] Frames;
+        protected SimpleCel[] Frames;
 
         public bool IsTestFinished { get; protected set; }
 
@@ -26,7 +26,7 @@ namespace Aarthificial.Reanimation.Tests
             var drivers = new DriverDictionary();
             drivers.keys.Add(EventDriver);
             drivers.values.Add(0);
-            var frame = new KeyFrame(drivers: drivers);
+            var frame = new SimpleCel(drivers: drivers);
             Frames = new[] {frame};
             Root = SimpleAnimationNode.Create<SimpleAnimationNode>(frames: Frames);
 

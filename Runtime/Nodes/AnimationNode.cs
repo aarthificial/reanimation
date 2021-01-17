@@ -1,35 +1,36 @@
-﻿using Aarthificial.Reanimation.KeyFrames;
+﻿using Aarthificial.Reanimation.Cels;
 using UnityEngine;
 
 namespace Aarthificial.Reanimation.Nodes
 {
-    public class AnimationNode<TKeyFrame> : TerminationNode
-        where TKeyFrame : KeyFrame
+    public class AnimationNode<TCel> : TerminationNode
+        where TCel : ICel
     {
         public static TNode Create<TNode>(
             bool autoIncrement = false,
             bool percentageBased = false,
             string driver = null,
-            TKeyFrame[] frames = null
-        ) where TNode : AnimationNode<TKeyFrame>
+            TCel[] frames = null
+        ) where TNode : AnimationNode<TCel>
         {
             var instance = CreateInstance<TNode>();
             instance.autoIncrement = autoIncrement;
             instance.percentageBased = percentageBased;
 
             if (driver != null)
-                instance.driver = driver;
+                instance.Driver = driver;
             if (frames != null)
                 instance.frames = frames;
 
             return instance;
         }
 
-        [SerializeField] protected TKeyFrame[] frames;
+        [SerializeField] protected TCel[] frames;
 
-        public override KeyFrame ResolveKeyframe(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
+        public override ICel ResolveCel(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
         {
-            return frames[ProcessDriver(previousState, nextState, frames.Length)];
+            AddTrace(nextState);
+            return frames[ResolveDriver(previousState, nextState, frames.Length)];
         }
     }
 }
