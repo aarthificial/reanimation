@@ -28,7 +28,7 @@ namespace Aarthificial.Reanimation.Tests
             drivers.values.Add(0);
             var frame = new SimpleCel(drivers: drivers);
             Frames = new[] {frame};
-            Root = SimpleAnimationNode.Create<SimpleAnimationNode>(frames: Frames);
+            Root = SimpleAnimationNode.Create<SimpleAnimationNode>(cels: Frames);
 
             Renderer = gameObject.AddComponent<SpriteRenderer>();
             Reanimator = gameObject.AddComponent<Reanimator>();

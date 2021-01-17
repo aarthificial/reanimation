@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Aarthificial.Reanimation.Editor.Nodes;
 using Aarthificial.Reanimation.Nodes;
 using UnityEditor;
 using UnityEngine;
@@ -14,9 +15,9 @@ namespace Aarthificial.Reanimation.Editor
         {
             Sprites.Clear();
             SpritesLeft.Clear();
-            for (var i = 0; i < Frames.arraySize; i++)
+            for (var i = 0; i < Cels.arraySize; i++)
             {
-                var frameProp = Frames.GetArrayElementAtIndex(i);
+                var frameProp = Cels.GetArrayElementAtIndex(i);
                 var sprite = frameProp.FindPropertyRelative("sprite").objectReferenceValue as Sprite;
                 if (sprite != null)
                     Sprites.Add(sprite);

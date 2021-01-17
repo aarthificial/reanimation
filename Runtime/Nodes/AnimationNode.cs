@@ -1,6 +1,7 @@
 ﻿using Aarthificial.Reanimation.Cels;
 using Aarthificial.Reanimation.Common;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Aarthificial.Reanimation.Nodes
 {
@@ -9,20 +10,20 @@ namespace Aarthificial.Reanimation.Nodes
     {
         public static TNode Create<TNode>(
             ControlDriver driver = null,
-            TCel[] frames = null
+            TCel[] cels = null
         ) where TNode : AnimationNode<TCel>
         {
             var instance = CreateInstance<TNode>();
 
             if (driver != null)
                 instance.controlDriver = driver;
-            if (frames != null)
-                instance.frames = frames;
+            if (cels != null)
+                instance.cels = cels;
 
             return instance;
         }
 
-        [SerializeField] protected TCel[] frames;
+        [SerializeField] protected TCel[] cels;
         [SerializeField] protected ControlDriver controlDriver = new ControlDriver();
         [SerializeField] protected DriverDictionary drivers = new DriverDictionary();
 
@@ -36,7 +37,7 @@ namespace Aarthificial.Reanimation.Nodes
         public override ICel ResolveCel(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
         {
             nextState.Merge(drivers);
-            return frames[controlDriver.ResolveDriver(previousState, nextState, frames.Length)];
+            return cels[controlDriver.ResolveDriver(previousState, nextState, cels.Length)];
         }
     }
 }

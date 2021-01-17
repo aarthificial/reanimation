@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Aarthificial.Reanimation.Cels;
 using Aarthificial.Reanimation.Nodes;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Aarthificial.Reanimation
 {
@@ -14,6 +14,7 @@ namespace Aarthificial.Reanimation
         public SpriteRenderer Renderer => renderer;
         public ReanimatorNode root;
         public IReadOnlyReanimatorState State => _previousState;
+        public IReadOnlyReanimatorState NextState => _nextState;
 
         public bool Flip
         {
@@ -21,7 +22,7 @@ namespace Aarthificial.Reanimation
         }
 
         [SerializeField] private new SpriteRenderer renderer;
-        [SerializeField] private float secondsPerFrame = 0.1f;
+        [FormerlySerializedAs("secondsPerFrame")] [SerializeField] private int fps = 10;
 
         private readonly Dictionary<string, ReanimatorListener> _listeners =
             new Dictionary<string, ReanimatorListener>();
@@ -45,6 +46,7 @@ namespace Aarthificial.Reanimation
         private void Update()
         {
             _clock += Time.deltaTime;
+            float secondsPerFrame = 1 / (float) fps;
             while (_clock >= secondsPerFrame)
             {
                 _clock -= secondsPerFrame;

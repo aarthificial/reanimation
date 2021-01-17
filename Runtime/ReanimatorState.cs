@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Aarthificial.Reanimation.Common;
 using Aarthificial.Reanimation.Nodes;
-using UnityEngine;
 
 namespace Aarthificial.Reanimation
 {
-    public interface IReadOnlyReanimatorState
+    public interface IReadOnlyReanimatorState : IEnumerable<KeyValuePair<string, int>>
     {
         public void Set(string name, bool value);
 
@@ -22,7 +20,7 @@ namespace Aarthificial.Reanimation
     }
 
     [Serializable]
-    public class ReanimatorState : IReadOnlyReanimatorState, IEnumerable<KeyValuePair<string, int>>
+    public class ReanimatorState : IReadOnlyReanimatorState
     {
         public static readonly string FlipDriver = "_flip";
         public static readonly int FloatPrecision = 100000;
@@ -110,7 +108,7 @@ namespace Aarthificial.Reanimation
 #if UNITY_EDITOR
         private readonly List<ReanimatorNode> _trace = new List<ReanimatorNode>();
         public ReanimatorNode LastTracedNode => _trace[_trace.Count - 1];
-        
+
         public void AddTrace(ReanimatorNode value)
         {
             _trace.Add(value);

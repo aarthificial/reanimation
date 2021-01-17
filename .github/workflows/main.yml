@@ -1,15 +1,15 @@
-﻿name: Tests
+﻿name: Tests & Build
 
 on:
   pull_request: {}
-  push: { branches: [ci-experiments] }
+  push: { branches: [master] }
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
 jobs:
-  build:
-    name: Build project
+  tests:
+    name: Tests 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -49,3 +49,25 @@ jobs:
         with:
           name: Code coverage
           path: .tests/CodeCoverage/Report
+          
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+
+      - name: Cache libraries
+        uses: actions/cache@v1.1.0
+        with:
+          path: .tests/Library
+          key: Library
+          
+      - name: Build project
+        id: build
+        uses: game-ci/unity-builder@v2.0-alpha-2
+        with:
+          unityVersion: 2020.2.0f1
+          targetPlatform: StandaloneWindows
