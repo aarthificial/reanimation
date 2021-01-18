@@ -3,12 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Aarthificial.Reanimation.Cels;
-using Aarthificial.Reanimation.Editor.Nodes;
 using Aarthificial.Reanimation.Nodes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Nodes
 {
     [CustomEditor(typeof(SimpleAnimationNode))]
     public class SimpleAnimationNodeEditor : AnimationNodeEditor

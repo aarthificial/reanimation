@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Aarthificial.Reanimation.Nodes;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Aarthificial.Reanimation
 {
@@ -22,20 +21,15 @@ namespace Aarthificial.Reanimation
         }
 
         [SerializeField] private new SpriteRenderer renderer;
-        [FormerlySerializedAs("secondsPerFrame")] [SerializeField] private int fps = 10;
+        [SerializeField] private int fps = 10;
 
         private readonly Dictionary<string, ReanimatorListener> _listeners =
             new Dictionary<string, ReanimatorListener>();
 
         private readonly ReanimatorState _previousState = new ReanimatorState();
         private readonly ReanimatorState _nextState = new ReanimatorState();
-        private readonly HashSet<string> _oneOffDrivers = new HashSet<string>();
+        private readonly HashSet<string> _temporaryDrivers = new HashSet<string>();
         private float _clock;
-
-#if UNITY_EDITOR
-        private Color _lastColorBeforeInvalid;
-        private bool _wasInvalid;
-# endif
 
         private void Awake()
         {
@@ -60,23 +54,25 @@ namespace Aarthificial.Reanimation
             _nextState.Clear();
 
 #if UNITY_EDITOR
-            Exception resolveException = null;
             try
             {
-#endif
                 root
                     .Resolve(_previousState, _nextState)
                     .ResolveCel(_previousState, _nextState)
                     .ApplyToRenderer(_previousState, _nextState, renderer);
-#if UNITY_EDITOR
             }
             catch (Exception e)
             {
-                resolveException = e;
+                Debug.LogException(e, _nextState.LastTracedNode);
             }
+#else
+            root
+                .Resolve(_previousState, _nextState)
+                .ResolveCel(_previousState, _nextState)
+                .ApplyToRenderer(_previousState, _nextState, renderer);
 #endif
 
-            foreach (string driver in _oneOffDrivers)
+            foreach (string driver in _temporaryDrivers)
                 _previousState.Remove(driver);
 
             foreach (var listener in _listeners)
@@ -84,26 +80,6 @@ namespace Aarthificial.Reanimation
                     listener.Value.Invoke();
 
             Ticked?.Invoke();
-
-#if UNITY_EDITOR
-            if (resolveException != null)
-            {
-                _wasInvalid = true;
-                _lastColorBeforeInvalid = renderer.color;
-                renderer.color = Color.magenta;
-
-                Debug.LogException(
-                    resolveException,
-                    _nextState.LastTracedNode
-                );
-            }
-
-            if (_wasInvalid && resolveException == null)
-            {
-                _wasInvalid = false;
-                renderer.color = _lastColorBeforeInvalid;
-            }
-#endif
         }
 
         public void Set(string key, int value)
@@ -134,6 +110,14 @@ namespace Aarthificial.Reanimation
             return nextValue == toValue && _previousState.Get(key) != nextValue;
         }
 
+        public bool WillChange(string key, bool toValue)
+        {
+            if (!_nextState.Contains(key)) return false;
+            bool nextValue = _nextState.GetBool(key);
+
+            return nextValue == toValue && _previousState.GetBool(key) != nextValue;
+        }
+
         public void ForceRerender()
         {
             _clock = 0;
@@ -157,14 +141,14 @@ namespace Aarthificial.Reanimation
                 _listeners.Remove(driverName);
         }
 
-        public void AddOneOffDriver(string driverName)
+        public void AddTemporaryDriver(params string[] driverName)
         {
-            _oneOffDrivers.Add(driverName);
+            _temporaryDrivers.UnionWith(driverName);
         }
 
-        public void RemoveOneOffDriver(string driverName)
+        public void RemoveTemporaryDriver(params string[] driverName)
         {
-            _oneOffDrivers.Remove(driverName);
+            _temporaryDrivers.ExceptWith(driverName);
         }
     }
 }

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Aarthificial.Reanimation.Nodes;
+﻿using Aarthificial.Reanimation.Nodes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Common
 {
     [CustomPropertyDrawer(typeof(ControlDriver))]
     public class ControlDriverPropertyDrawer : PropertyDrawer

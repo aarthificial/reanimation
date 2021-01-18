@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Common
 {
     [CustomPropertyDrawer(typeof(OverridePair))]
     public class OverridePairPropertyDrawer : PropertyDrawer

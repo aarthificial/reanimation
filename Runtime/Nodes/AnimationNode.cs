@@ -1,7 +1,6 @@
 ﻿using Aarthificial.Reanimation.Cels;
 using Aarthificial.Reanimation.Common;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Aarthificial.Reanimation.Nodes
 {
@@ -23,6 +22,8 @@ namespace Aarthificial.Reanimation.Nodes
             return instance;
         }
 
+        // ReSharper disable once Unity.RedundantSerializeFieldAttribute
+        // ReSharper disable once InconsistentNaming
         [SerializeField] protected TCel[] cels;
         [SerializeField] protected ControlDriver controlDriver = new ControlDriver();
         [SerializeField] protected DriverDictionary drivers = new DriverDictionary();

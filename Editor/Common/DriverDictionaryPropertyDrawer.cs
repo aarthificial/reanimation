@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Common
 {
     [CustomPropertyDrawer(typeof(DriverDictionary))]
     public class DriverDictionaryPropertyDrawer : PropertyDrawer

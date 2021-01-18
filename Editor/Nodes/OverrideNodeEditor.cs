@@ -1,9 +1,7 @@
-﻿using System;
-using Aarthificial.Reanimation.Nodes;
+﻿using Aarthificial.Reanimation.Nodes;
 using UnityEditor;
-using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Nodes
 {
     [CustomEditor(typeof(OverrideNode))]
     public class OverrideNodeEditor : UnityEditor.Editor

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using Aarthificial.Reanimation.Editor.Nodes;
 using Aarthificial.Reanimation.Nodes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Nodes
 {
     [CustomEditor(typeof(MirroredAnimationNode))]
     public class MirroredAnimationNodeEditor : AnimationNodeEditor
