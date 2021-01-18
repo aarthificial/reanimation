@@ -2,11 +2,17 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Common
 {
     [CustomPropertyDrawer(typeof(OverridePair))]
     public class OverridePairPropertyDrawer : PropertyDrawer
     {
+        private static class Styles
+        {
+            public static readonly GUIContent RemoveIcon = EditorGUIUtility.IconContent("d_tab_next");
+            public static readonly GUIStyle IconButton = new GUIStyle("IconButton");
+        }
+        
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var fromProp = property.FindPropertyRelative("fromNode");
@@ -20,11 +26,16 @@ namespace Aarthificial.Reanimation.Editor
             var fromProp = property.FindPropertyRelative("fromNode");
             var toProp = property.FindPropertyRelative("toNode");
 
-            position.width /= 2;
+            float width = (position.width - 20) / 2;
+            position.width = width;
             EditorGUI.PropertyField(position, fromProp, GUIContent.none);
-            position.x += position.width;
+            position.x += width + 2;
+            position.width = 10;
+            EditorGUI.LabelField(position, Styles.RemoveIcon, Styles.IconButton);
+            position.x += 18;
+            position.width = width;
             EditorGUI.PropertyField(position, toProp, GUIContent.none);
-
+            
             EditorGUI.EndProperty();
         }
     }

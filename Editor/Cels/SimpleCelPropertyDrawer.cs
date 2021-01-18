@@ -2,7 +2,7 @@
 using Aarthificial.Reanimation.Cels;
 using UnityEditor;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Cels
 {
     [CustomPropertyDrawer(typeof(SimpleCel))]
     public class SimpleCelPropertyDrawer : CelPropertyDrawer

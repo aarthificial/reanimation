@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Nodes
 {
     public abstract class ReanimatorNodeEditor : UnityEditor.Editor
     {

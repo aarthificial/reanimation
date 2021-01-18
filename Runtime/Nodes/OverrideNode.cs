@@ -33,12 +33,13 @@ namespace Aarthificial.Reanimation.Nodes
         public override TerminationNode Resolve(IReadOnlyReanimatorState previousState, ReanimatorState nextState)
         {
             AddTrace(nextState);
-            return GetOverrideFor(next.Resolve(previousState, nextState));
-        }
+            var node = next.Resolve(previousState, nextState);
+            if (!_map.ContainsKey(node))
+                return node;
 
-        private TerminationNode GetOverrideFor(TerminationNode node)
-        {
-            return _map.ContainsKey(node) ? _map[node] : node;
+            var overrideNode = _map[node];
+            nextState.AddTrace(overrideNode);
+            return overrideNode;
         }
     }
 }

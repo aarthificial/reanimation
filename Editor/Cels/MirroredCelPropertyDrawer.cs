@@ -3,7 +3,7 @@ using Aarthificial.Reanimation.Cels;
 using UnityEditor;
 using UnityEngine;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Cels
 {
     [CustomPropertyDrawer(typeof(MirroredCel))]
     public class MirroredCelPropertyDrawer: CelPropertyDrawer

@@ -1,7 +1,7 @@
 ﻿using Aarthificial.Reanimation.Nodes;
 using UnityEditor;
 
-namespace Aarthificial.Reanimation.Editor
+namespace Aarthificial.Reanimation.Editor.Nodes
 {
     [CustomEditor(typeof(SwitchNode))]
     public class SwitchNodeEditor : ReanimatorNodeEditor

@@ -1,4 +1,4 @@
-﻿name: Acquire activation file
+﻿name: Activation
 
 on: workflow_dispatch
 
