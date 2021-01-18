@@ -38,7 +38,9 @@ namespace Aarthificial.Reanimation.Nodes
                 return node;
 
             var overrideNode = _map[node];
+#if UNITY_EDITOR
             nextState.AddTrace(overrideNode);
+#endif
             return overrideNode;
         }
     }
