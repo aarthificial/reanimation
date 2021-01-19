@@ -9,6 +9,7 @@ namespace Aarthificial.Reanimation.Editor
         private SerializedProperty _root;
         private SerializedProperty _renderer;
         private SerializedProperty _fps;
+        private SerializedProperty _temporary;
         private Reanimator _reanimator;
         private bool _isExpanded;
 
@@ -17,6 +18,7 @@ namespace Aarthificial.Reanimation.Editor
             _root = serializedObject.FindProperty(nameof(Reanimator.root));
             _renderer = serializedObject.FindProperty("renderer");
             _fps = serializedObject.FindProperty("fps");
+            _temporary = serializedObject.FindProperty("temporaryDrivers");
             _reanimator = target as Reanimator;
         }
 
@@ -32,6 +34,7 @@ namespace Aarthificial.Reanimation.Editor
             EditorGUILayout.PropertyField(_root);
             EditorGUILayout.PropertyField(_renderer);
             EditorGUILayout.PropertyField(_fps);
+            EditorGUILayout.PropertyField(_temporary);
 
             EditorGUI.BeginDisabledGroup(!Application.isPlaying);
             _isExpanded = EditorGUILayout.Foldout(_isExpanded, "State", true);
