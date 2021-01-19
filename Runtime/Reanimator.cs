@@ -22,6 +22,7 @@ namespace Aarthificial.Reanimation
 
         [SerializeField] private new SpriteRenderer renderer;
         [SerializeField] private int fps = 10;
+        [SerializeField] private string[] temporaryDrivers = new string[0];
 
         private readonly Dictionary<string, ReanimatorListener> _listeners =
             new Dictionary<string, ReanimatorListener>();
@@ -37,6 +38,16 @@ namespace Aarthificial.Reanimation
                 renderer = GetComponent<SpriteRenderer>();
         }
 
+        private void OnEnable()
+        {
+            AddTemporaryDriver(temporaryDrivers);
+        }
+
+        private void OnDisable()
+        {
+            RemoveTemporaryDriver(temporaryDrivers);
+        }
+
         private void Update()
         {
             _clock += Time.deltaTime;
@@ -50,6 +61,8 @@ namespace Aarthificial.Reanimation
 
         private void UpdateFrame()
         {
+            foreach (string driver in _temporaryDrivers)
+                _previousState.Remove(driver);
             _previousState.Merge(_nextState);
             _nextState.Clear();
 
@@ -71,9 +84,6 @@ namespace Aarthificial.Reanimation
                 .ResolveCel(_previousState, _nextState)
                 .ApplyToRenderer(_previousState, _nextState, renderer);
 #endif
-
-            foreach (string driver in _temporaryDrivers)
-                _previousState.Remove(driver);
 
             foreach (var listener in _listeners)
                 if (_nextState.Contains(listener.Key))
