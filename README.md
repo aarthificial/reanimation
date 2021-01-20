@@ -20,7 +20,7 @@ an animation system to provide:
 Reanimator can be [installed as a unity package](https://docs.unity3d.com/Manual/upm-ui-giturl.html) 
 using this url:
 ```
-https://github.com/aarthificial/reanimation
+https://github.com/aarthificial/reanimation.git
 ```
 I'm still not sure if and when it will land on the Asset Store.
 
