@@ -36,10 +36,10 @@ namespace Aarthificial.Reanimation.Editor.Nodes
                 : CurrentFrame;
 
             position.width /= 2;
-            Helpers.DrawTexturePreview(position, Sprites[index]);
-            position.x += position.width;
             if (index < SpritesLeft.Count)
                 Helpers.DrawTexturePreview(position, SpritesLeft[index]);
+            position.x += position.width;
+            Helpers.DrawTexturePreview(position, Sprites[index]);
         }
     }
 }
