@@ -8,15 +8,15 @@ namespace Aarthificial.Reanimation
 {
     public interface IReadOnlyReanimatorState : IEnumerable<KeyValuePair<string, int>>
     {
-        public void Set(string name, bool value);
+        void Set(string name, bool value);
 
-        public int Get(string name, int fallback = 0);
+        int Get(string name, int fallback = 0);
 
-        public float GetFloat(string name, float fallback = 0);
+        float GetFloat(string name, float fallback = 0);
 
-        public bool GetBool(string name, bool fallback = false);
+        bool GetBool(string name, bool fallback = false);
 
-        public bool ShouldFlip();
+        bool ShouldFlip();
     }
 
     [Serializable]
