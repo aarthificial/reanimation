@@ -4,7 +4,7 @@ namespace Aarthificial.Reanimation.Cels
 {
     public interface ICel
     {
-        public void ApplyToRenderer(
+        void ApplyToRenderer(
             ReanimatorState previousState,
             ReanimatorState nextState,
             SpriteRenderer renderer
