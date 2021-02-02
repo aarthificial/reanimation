@@ -1,7 +1,7 @@
 ﻿name: Tests & Build
 
 on:
-  pull_request: {}
+  pull_request_target: {}
   push: { branches: [master] }
 
 env:
