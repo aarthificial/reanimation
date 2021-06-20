@@ -1,6 +1,6 @@
 {
   "name": "com.aarthificial.reanimation",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "displayName": "Reanimation",
   "description": "Keyframe-based animator",
   "unity": "2020.2",
