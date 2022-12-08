@@ -17,6 +17,7 @@ an animation system to provide:
 - percentage-driven animations
 - animation overrides
 - events
+- tree graph view
 
 ### Installation
 Reanimator can be [installed as a unity package](https://docs.unity3d.com/Manual/upm-ui-giturl.html) 
@@ -35,3 +36,7 @@ Please note, however, that I'm not claiming that this solution is better than th
 <br>
 I'm releasing it due to a lot of requests I got under my devlog, 
 not because I'm trying to popularize it or something.
+
+
+## Graph View
+Open the Reanimator Graph View from the Window->Reanimator->Reanimator Graph and select a root node to get it displayed.

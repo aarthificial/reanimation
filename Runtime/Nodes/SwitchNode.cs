@@ -7,6 +7,7 @@ namespace Aarthificial.Reanimation.Nodes
     public class SwitchNode : ReanimatorNode
     {
         [SerializeField] protected ReanimatorNode[] nodes;
+        public ReanimatorNode[] Nodes { get => nodes; }
         [SerializeField] protected ControlDriver controlDriver = new ControlDriver();
         [SerializeField] protected DriverDictionary drivers = new DriverDictionary();
 
