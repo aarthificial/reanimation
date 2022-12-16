@@ -1,6 +1,5 @@
 namespace Aarthificial.Reanimation.Editor.GraphView
 {
-
     using System.Collections;
     using System.Collections.Generic;
     using Aarthificial.Reanimation.Nodes;
@@ -16,9 +15,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         ReanimatorInspectorView inspectorView;
 
         private SwitchNode rootNode;
-
+        private bool isAnimationNodesHidden = false;
         VisualElement root => rootVisualElement;
-
 
         [MenuItem("Window/Reanimator/Reanimator Graph")]
         public static void OpenReanimatorGraph()
@@ -32,17 +30,40 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             var visualTree = Resources.Load<VisualTreeAsset>("GraphEditorWindow");
             visualTree.CloneTree(root);
 
+            GenerateToolbar();
             GetGraphView();
             OnSelectionChange();
+        }
+
+        private void GenerateToolbar()
+        {
+            var toolbar = new Toolbar();
+
+            var toggleCollapse = new Button(clickEvent: ToggleHideAnimationNodes);
+            toggleCollapse.text = "Hide Animation Nodes";
+            toggleCollapse.name = "toggle-button";
+            toolbar.Add(toggleCollapse);
+
+            root.Add(toolbar);
+        }
+
+        private void ToggleHideAnimationNodes()
+        {
+            isAnimationNodesHidden = !isAnimationNodesHidden;
+            root.Q<Button>("toggle-button").text = isAnimationNodesHidden
+                ? "Hide Animation Nodes"
+                : "Show Animation Nodes";
+            graphView.ToggleAnimationNodes();
         }
 
         private void OnSelectionChange()
         {
             var node = Selection.activeObject as ReanimatorNode;
-            if(node != null)
+            if (node != null)
             {
                 graphView.Generate(node);
-            }else if (Selection.activeGameObject)
+            }
+            else if (Selection.activeGameObject)
             {
                 Reanimator reanimator = Selection.activeGameObject.GetComponent<Reanimator>();
                 if (reanimator != null)
@@ -53,10 +74,12 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
             inspectorView.UpdateSelection(node);
         }
+
         void HandleInspectorChanged()
         {
             graphView.Generate();
         }
+
         void HandleNodeSelectionChanged(ReanimatorNodeView nodeView)
         {
             inspectorView.UpdateSelection(nodeView.node);
@@ -64,48 +87,53 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
         GraphViewChange HandleGraphViewChange(GraphViewChange graphViewChange)
         {
-            if(graphViewChange.movedElements != null){
-                
+            if (graphViewChange.movedElements != null)
+            {
                 foreach (var graphElement in graphViewChange.movedElements)
                 {
                     var nodeView = graphElement as ReanimatorNodeView;
+                    if (nodeView == null)
+                        continue;
                     var node = nodeView.node;
-                    node.position = node.position + graphViewChange.moveDelta / graphViewChange.movedElements.Count;
+                    node.position = nodeView.GetPosition().position;
                 }
             }
             AssetDatabase.SaveAssets();
             return graphViewChange;
         }
+
         void GetGraphView()
         {
             graphView = root.Q<ReanimatorGraphView>();
             inspectorView = root.Q<ReanimatorInspectorView>();
-            
+
             Subscribe();
         }
+
         private void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             // Re-establish Graph View to work in Edit Mode
             if (state == PlayModeStateChange.EnteredEditMode)
             {
-                graphView.Generate();
-                Subscribe();
+                GetGraphView();
             }
         }
 
         private void OnEnable()
         {
+            GenerateToolbar();
             GetGraphView();
             if (graphView != null)
             {
                 graphView.Generate(rootNode);
             }
         }
+
         void OnDisable()
         {
             Unsubscribe();
         }
-        
+
         public void Subscribe()
         {
             // Play it safe!
@@ -119,12 +147,11 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
 
             // Nobody else than us should listen to these evens (therefor =)
-            if(inspectorView != null)
+            if (inspectorView != null)
             {
                 inspectorView.OnChange = HandleInspectorChanged;
             }
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-
         }
 
         // Unsubcribe from event
@@ -135,13 +162,12 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 graphView.OnNodeSelected -= HandleNodeSelectionChanged;
                 graphView.graphViewChanged -= HandleGraphViewChange;
             }
-            if(inspectorView != null)
+            if (inspectorView != null)
             {
                 inspectorView.OnChange -= HandleInspectorChanged;
             }
 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-
         }
     }
 }
