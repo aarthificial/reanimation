@@ -1,0 +1,28 @@
+
+GridBackground {
+    --grid-background-color: #282828;
+    --line-color: rgba(193, 196, 192, 0.1);
+    --thick-line-color: rgba(193, 196, 192, 0.1);
+    --spacing: 20;
+}
+.graphElement.collapsed #contents {
+    display: none;
+}
+.edge {
+    opacity: 0.3;
+    --edge-width:20;
+    --edge-color:rgba(193, 196, 192, 1);
+}
+.edge.input {
+    --selected-edge-color:rgba(0.9, 0, 0, 1);
+    --edge-color:rgba(0.9, 0, 0, 1);
+}
+.edge.output {
+    --edge-color:rgba(0, 0.9, 0, 1);
+}
+.edge.selected {
+    opacity: 1;
+}
+.end-node #node-border{
+    border-color:rgba(193, 0, 192, 1);
+}
