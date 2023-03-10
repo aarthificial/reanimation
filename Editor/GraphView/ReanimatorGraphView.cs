@@ -165,7 +165,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 foreach (var tempNode in switchNode.Nodes)
                 {
                     var outputPort = GeneratePort(nodeView, Direction.Output, Port.Capacity.Multi);
-                    outputPort.portName = tempNode.name.ToString();
+                    outputPort.portName = (tempNode == null) ? "None" : tempNode.name.ToString();
                     nodeView.outputContainer.Add(outputPort);
                 }
             }
