@@ -6,10 +6,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
     using UnityEditor.Experimental.GraphView;
     using UnityEngine.UIElements;
     using System.Linq;
-    using UnityEditor;
     using Aarthificial.Reanimation.Nodes;
-    using Aarthificial.Reanimation.Cels;
-    using Aarthificial.Reanimation.Common;
 
     public class ReanimatorGraphView : GraphView
     {
@@ -18,7 +15,9 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
         SwitchNode _rootNode;
         public Action<ReanimatorNodeView> OnNodeSelected;
+        public Action<ReanimatorNodeView> OnNodeUnSelected;
         private bool isAnimationNodesHidden = false;
+        public Reanimator SelectedReanimator { get; set; }
 
         public ReanimatorGraphView()
         {
@@ -45,37 +44,51 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             Vector2 worldMousePosition =
                 screenMousePosition - contentViewContainer.transform.position;
             worldMousePosition *= 1 / contentViewContainer.transform.scale.x;
-            evt.menu.AppendAction(
-                "Create Switch Node",
-                actionEvent => CreateNode(worldMousePosition)
-            );
-            evt.menu.AppendAction("Create Group", actionEvent => CreateGroup(worldMousePosition));
+            if (evt.target is ReanimatorNodeView)
+            {
+                ReanimatorNodeView reanimatorNodeView = evt.target as ReanimatorNodeView;
+                switch (reanimatorNodeView.GetType().Name)
+                {
+                    case nameof(SwitchNodeView):
+                        evt.menu.AppendAction("Create Switch Node", actionEvent =>
+                        {
+                            SwitchNode node = reanimatorNodeView.Node as SwitchNode;
+                            reanimatorNodeView.CreateChildAsset<SwitchNode>();
+                            Generate();
+                        });
+                        evt.menu.AppendAction("Create Animation Node", actionEvent =>
+                        {
+                            SwitchNode node = reanimatorNodeView.Node as SwitchNode;
+                            reanimatorNodeView.CreateChildAsset<SimpleAnimationNode>();
+                            Generate();
+                        });
+                        break;
+                }
+            }
 
-            base.BuildContextualMenu(evt);
         }
 
-        public void CreateGroup(Vector2 position)
+        /*public void CreateGroup(Vector2 position)
         {
             var group = new Group() { title = "New Group", autoUpdateGeometry = true };
             group.SetPosition(new Rect(position, new Vector2(0, 0)));
             AddElement(group);
-        }
+        }*/
 
-        public void CreateNode(Vector2 position)
-        {
-            var node = new SwitchNode();
-            node.position = position;
-            AddNode(node);
-        }
 
         public void Generate(ReanimatorNode rootNode = null)
         {
             RemoveAllGraphElements();
+            if(SelectedReanimator != null)
+            {
+                rootNode = SelectedReanimator.root;
+            }
             ReanimatorNodeView.levelCounts = new Dictionary<int, int>();
             if (rootNode == null)
                 rootNode = _rootNode;
             if (rootNode is SwitchNode switchNode)
                 _rootNode = switchNode;
+            if (rootNode == null) return;
             if (!(rootNode is SwitchNode))
             {
                 AddNode(rootNode, 0);
@@ -87,18 +100,18 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
         }
 
-        public void ToggleAnimationNodes()
+        /*public void ToggleAnimationNodes()
         {
             isAnimationNodesHidden = !isAnimationNodesHidden;
             foreach (var node in nodes.ToList())
             {
                 if (node is ReanimatorNodeView nodeView)
                 {
-                    if (nodeView.node is TerminationNode)
+                    if (nodeView.Node is TerminationNode)
                     {
                         nodeView.visible = !isAnimationNodesHidden;
                     }
-                    if (nodeView.node is SwitchNode)
+                    if (nodeView.Node is SwitchNode)
                     {
                         nodeView.expanded = !isAnimationNodesHidden;
                     }
@@ -108,19 +121,19 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             {
                 if (edge.input.node is ReanimatorNodeView inpotNodeView)
                 {
-                    if (inpotNodeView.node is TerminationNode)
+                    if (inpotNodeView.Node is TerminationNode)
                     {
                         edge.visible = !isAnimationNodesHidden;
                     }
                 }
             }
-        }
+        }*/
 
         void populateAllNodes(
             ReanimatorNode[] nodes,
             int level = 0,
             ReanimatorNodeView prevNode = null
-        )
+            )
         {
             foreach (var node in nodes)
             {
@@ -134,32 +147,59 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 }
             }
         }
-
+        private void OnNodeValidated(ReanimatorNodeView reanimatorNodeView)
+        {
+            if(reanimatorNodeView is SwitchNodeView switchNodeView)
+            {
+                if (switchNodeView.NodesChanged()) Generate();
+            }
+            
+        }
         ReanimatorNodeView AddNode(
             ReanimatorNode node,
             int level = 0,
             ReanimatorNodeView prevNodeView = null
         )
         {
-            var nodeView = new ReanimatorNodeView(node, level);
-
-            if (prevNodeView != null)
+            ReanimatorNodeView nodeView;
+            if (node is SwitchNode switchNode)
+                nodeView = new SwitchNodeView(switchNode, level);
+            else
+                nodeView = new ReanimatorNodeView(node, level);
+            nodeView.PreviousNodeView = prevNodeView;
+            node.OnValidated += () => OnNodeValidated(nodeView);
+            GeneratePorts(nodeView);
+            nodeView.OnNodeSelected += (ReanimatorNodeView nodeView) =>
+                OnNodeSelected?.Invoke(nodeView);
+            nodeView.OnNodeUnSelected += (ReanimatorNodeView nodeView) =>
+                OnNodeUnSelected?.Invoke(nodeView);
+            nodeView.focusable = true;
+            AddElement(nodeView);
+            
+            
+            return nodeView;
+        }
+        private void GeneratePorts(ReanimatorNodeView nodeView)
+        {
+            nodeView.inputContainer.Clear();
+            nodeView.outputContainer.Clear();
+            if (nodeView.PreviousNodeView != null)
             {
                 // only Switch nodes can have outputs
                 // meaning it was the previous node
-                var prevSwitchNode = prevNodeView.node as SwitchNode;
-                var myIndex = prevSwitchNode.Nodes.ToList().IndexOf(node);
-                var prevOutput = prevNodeView.outputContainer[myIndex] as Port;
+                var prevSwitchNode = nodeView.PreviousNodeView.Node as SwitchNode;
+                var myIndex = prevSwitchNode.Nodes.ToList().IndexOf(nodeView.Node);
+                var prevOutput = nodeView.PreviousNodeView.outputContainer[myIndex] as Port;
 
                 var inputPort = GeneratePort(nodeView, Direction.Input, Port.Capacity.Multi);
-                inputPort.portName = prevNodeView.node.name.ToString();
+                inputPort.portName = nodeView.PreviousNodeView.Node.name.ToString();
                 var edge = inputPort.ConnectTo(prevOutput);
 
                 inputPort.edgeConnector.target.Add(edge);
 
                 nodeView.inputContainer.Add(inputPort);
             }
-            var switchNode = node as SwitchNode;
+            var switchNode = nodeView.Node as SwitchNode;
             if (switchNode != null)
             {
                 foreach (var tempNode in switchNode.Nodes)
@@ -173,12 +213,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             {
                 nodeView.AddToClassList("end-node");
             }
-            nodeView.OnNodeSelected += (ReanimatorNodeView nodeView) =>
-                OnNodeSelected?.Invoke(nodeView);
-            AddElement(nodeView);
             nodeView.RefreshExpandedState();
             nodeView.RefreshPorts();
-            return nodeView;
         }
 
         private Port GeneratePort(
@@ -195,7 +231,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             ); //Arbitrary type
         }
 
-        private void RemoveAllGraphElements()
+        public void RemoveAllGraphElements()
         {
             ports.ForEach(
                 (port) =>

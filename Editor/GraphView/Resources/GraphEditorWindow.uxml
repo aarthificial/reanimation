@@ -1,15 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <uie:Toolbar>
-        <uie:ToolbarMenu display-tooltip-when-elided="true" text="Assets" />
-    </uie:Toolbar>
-    <SplitView fixed-pane-initial-dimension="300">
-        <ui:ScrollView name="left-panel">
-            <ui:Label text="Inspector" display-tooltip-when-elided="true" name="inspector" />
-            <Aarthificial.Reanimation.Editor.GraphView.ReanimatorInspectorView />
-        </ui:ScrollView>
-        <ui:VisualElement name="right-panel">
-            <ui:Label text="Graph View" display-tooltip-when-elided="true" name="graph-giew" />
-            <Aarthificial.Reanimation.Editor.GraphView.ReanimatorGraphView focusable="true" style="flex-grow: 1;" />
-        </ui:VisualElement>
-    </SplitView>
+    <uie:Toolbar />
+    <Aarthificial.Reanimation.Editor.GraphView.ReanimatorGraphView focusable="true" style="flex-grow: 1; display: none;" />
+    <ui:VisualElement name="HelpMenu" focusable="true" style="max-width: none; max-height: none; min-width: auto; min-height: auto; align-items: center; justify-content: center; display: none; width: 100%; height: 100%;">
+        <ui:Button text="Add Reanimator" display-tooltip-when-elided="true" name="HelpButton" style="position: relative; left: auto; top: auto; bottom: auto; width: 50%; height: 30px;" />
+    </ui:VisualElement>
 </ui:UXML>
