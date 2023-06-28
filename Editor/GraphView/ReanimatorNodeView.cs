@@ -17,6 +17,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         public Action<ReanimatorNodeView> OnNodeUnSelected;
 
         public string GUID;
+
         private ReanimatorNode node;
         public ReanimatorNode Node
         {
@@ -32,25 +33,20 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         public string Name { get; set; }
         public ReanimatorNodeView PreviousNodeView { get; set; }
 
-        public ReanimatorNodeView(ReanimatorNode node, int level)
+        public ReanimatorNodeView(ReanimatorNode node, int level, ReanimatorNodeView previousNodeView = null)
         {
             Level = level;
             Node = node;
             GUID = Guid.NewGuid().ToString();
             Name = node.name;
+            PreviousNodeView = previousNodeView;
+            
             SetPosition(new Rect(LevelToPosition(level), Vector2.zero));
             Draw();
+            GeneratePorts();
         }
-        private Vector2 LevelToPosition(int level)
-        {
-            if (levelCounts.ContainsKey(level))
-                levelCounts[level]++;
-            else
-                levelCounts[level] = 0;
-            var position = node.Position == Vector2.zero ? new Vector2(250 * level, 150 * levelCounts[level]) : node.Position;
-            return position;
-        }
-        public void CreateChildAsset<T>() where T : ReanimatorNode 
+
+        public void CreateChildAsset<T>() where T : ReanimatorNode
         {
             var node = ScriptableObject.CreateInstance<T>();
             SwitchNode parentNode = Node as SwitchNode;//parent node always SwitchNode, cause AnimationNode cannot have other nodes
@@ -60,38 +56,27 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             parentNode.Nodes = nodes.ToArray();
             RGVIOUtility.SaveNode<T>(node);
         }
-        public override void OnSelected()
-        {
-            base.OnSelected();
-            OnNodeSelected?.Invoke(this);
-        }
 
-        public override void OnUnselected()
-        {
-            base.OnUnselected();
-            OnNodeUnSelected?.Invoke(this);
-        }
-        public void Draw()
+        private void Draw()
         {
             TextField nodeName = new TextField();
-            VisualElement textInput = nodeName.Q("unity-text-input");
-            textInput.style.backgroundColor = new UnityEngine.Color(0, 0, 0, 0);
-            textInput.style.borderBottomWidth = 0;
-            textInput.style.borderLeftWidth = 1;
-            textInput.style.borderTopWidth = 0;
-            textInput.style.borderRightWidth = 0;
-            textInput.style.paddingLeft = 10;
-            textInput.style.paddingRight = 10;
+            nodeName.AddToClassList("nodeName");
             nodeName.value = Node.name;
-            nodeName.StretchToParentSize();
-            nodeName.style.marginLeft = 30;
-            nodeName.style.minWidth = 50;
+            titleContainer.Clear(); //removing expand button
             titleContainer.Add(nodeName);
-            titleContainer.style.minWidth = 50 + 30;
-
-
             nodeName.RegisterCallback<FocusOutEvent>(ChangeName);
         }
+
+        private Vector2 LevelToPosition(int level)
+        {
+            if (levelCounts.ContainsKey(level))
+                levelCounts[level]++;
+            else
+                levelCounts[level] = 0;
+            var position = node.Position == Vector2.zero ? new Vector2(250 * level, 150 * levelCounts[level]) : node.Position;
+            return position;
+        }
+        
         private void ChangeName(FocusOutEvent evt)
         {
             TextField nodeName = evt.target as TextField;
@@ -106,5 +91,66 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
             Name = nodeName.value;
         }
+
+        #region Ports
+        private void GeneratePorts()
+        {
+            inputContainer.Clear();
+            outputContainer.Clear();
+            if (PreviousNodeView != null)
+            {
+                // only Switch nodes can have outputs
+                // meaning it was the previous node
+                var prevSwitchNode = PreviousNodeView.Node as SwitchNode;
+                var myIndex = prevSwitchNode.Nodes.ToList().IndexOf(Node);
+                var prevOutput = PreviousNodeView.outputContainer[myIndex] as Port;
+
+                var inputPort = GeneratePort(Direction.Input, Port.Capacity.Multi);
+                inputPort.portName = PreviousNodeView.Node.name.ToString();
+                var edge = inputPort.ConnectTo(prevOutput);
+
+                inputPort.edgeConnector.target.Add(edge);
+
+                inputContainer.Add(inputPort);
+            }
+            var switchNode = Node as SwitchNode;
+            if (switchNode != null)
+            {
+                foreach (var tempNode in switchNode.Nodes)
+                {
+                    var outputPort = GeneratePort(Direction.Output, Port.Capacity.Multi);
+                    outputPort.portName = (tempNode == null) ? "None" : tempNode.name.ToString();
+                    outputContainer.Add(outputPort);
+                }
+            }
+            if (switchNode == null || switchNode.Nodes.Length == 0)
+            {
+                AddToClassList("end-node");
+            }
+            RefreshExpandedState();
+            RefreshPorts();
+        }
+        private Port GeneratePort(Direction portDirection, Port.Capacity capacity = Port.Capacity.Single)
+        {
+            return this.InstantiatePort(
+                Orientation.Horizontal,
+                portDirection,
+                capacity,
+                typeof(float)
+            ); //Arbitrary type
+        }
+        #endregion
+
+        /*public override void OnSelected()
+        {
+            base.OnSelected();
+            OnNodeSelected?.Invoke(this);
+        }
+
+        public override void OnUnselected()
+        {
+            base.OnUnselected();
+            OnNodeUnSelected?.Invoke(this);
+        }*/
     }
 }

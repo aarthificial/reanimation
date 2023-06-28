@@ -17,9 +17,10 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         private VisualElement toolbar;
 
         private SwitchNode rootNode;
-        private bool isAnimationNodesHidden = false;
-        VisualElement root => rootVisualElement;
+        //private bool isAnimationNodesHidden = false;
+        private VisualElement root => rootVisualElement;
 
+        #region Realizations
         [MenuItem("Window/Reanimator/Reanimator Graph")]
         public static void OpenReanimatorGraph()
         {
@@ -33,115 +34,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             visualTree.CloneTree(root);
 
             GetGraphView();
-            GenerateToolbar();
+            //GenerateToolbar();
             OnSelectionChange();
-        }
-        private void Show(VisualElement visualElement)
-        {
-            visualElement.style.display = DisplayStyle.Flex;
-        }
-        private void HideAll()
-        {
-            helpMenu.style.display = DisplayStyle.None;
-            graphView.style.display = DisplayStyle.None;
-        }
-
-        private void GenerateToolbar()
-        {
-            var toggleCollapse = new Button(clickEvent: ToggleHideAnimationNodes);
-            toggleCollapse.text = "Hide Animation Nodes";
-            toggleCollapse.name = "toggle-button";
-            toolbar.Add(toggleCollapse);
-        }
-        private void AddReanimator()
-        {
-            GameObject gameObject = Selection.activeGameObject;
-            if (gameObject == null) return;
-            if(gameObject.GetComponent<Reanimator>() != null) return;
-            Reanimator reanimator = gameObject.AddComponent<Reanimator>();
-            reanimator.root = CreateRootNode();
-            OpenSelectedObject();
-        }
-        private SwitchNode CreateRootNode()
-        {
-            var node = ScriptableObject.CreateInstance<SwitchNode>();
-            node.name = "RootSwitch";
-            RGVIOUtility.SaveNode<SwitchNode>(node);
-            return node;
-        }
-        private void ToggleHideAnimationNodes()
-        {
-            isAnimationNodesHidden = !isAnimationNodesHidden;
-            root.Q<Button>("toggle-button").text = isAnimationNodesHidden
-                ? "Hide Animation Nodes"
-                : "Show Animation Nodes";
-            //graphView.ToggleAnimationNodes();
-        }
-
-        private void OnSelectionChange()
-        {
-            OpenSelectedObject();
-            if (graphView.SelectedReanimator != null)
-            {
-                Show(graphView);
-            }
-        }
-
-        private void OpenSelectedObject()
-        {
-            if (!Selection.activeGameObject) return;
-            HideAll();
-            Reanimator reanimator = Selection.activeGameObject.GetComponent<Reanimator>();
-            graphView.RemoveAllGraphElements();
-            if (reanimator != null)
-            {
-                graphView.SelectedReanimator = reanimator;
-                graphView.Generate();
-                Show(graphView);
-            }
-            else
-            {
-                graphView.SelectedReanimator = null;
-                Show(helpMenu);
-            }
-        }
-
-        void HandleNodeSelect(ReanimatorNodeView nodeView)
-        {
-            Selection.activeObject = nodeView.Node;
-        }
-        void HandleNodeUnSelect(ReanimatorNodeView nodeView)
-        {
-            if (Selection.activeObject == nodeView.Node)
-            {
-                Selection.activeObject = null;
-            }
-        }
-
-        GraphViewChange HandleGraphViewChange(GraphViewChange graphViewChange)
-        {
-            if (graphViewChange.movedElements != null)
-            {
-                foreach (var graphElement in graphViewChange.movedElements)
-                {
-                    var nodeView = graphElement as ReanimatorNodeView;
-                    if (nodeView == null)
-                        continue;
-                    var node = nodeView.Node;
-                    node.Position = nodeView.GetPosition().position;
-                }
-            }
-            AssetDatabase.SaveAssets();
-            return graphViewChange;
-        }
-
-        void GetGraphView()
-        {
-            graphView = root.Q<ReanimatorGraphView>();
-            helpMenu = root.Q("HelpMenu");
-            toolbar = root.Q<Toolbar>();
-            addReanimatorButton = root.Q<Button>("HelpButton");
-            Subscribe();
         }
 
         private void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -162,11 +56,39 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             Unsubscribe();
         }
+        private void OnSelectionChange()
+        {
+            OpenSelectedObject();
+            if (graphView.SelectedReanimator != null)
+            {
+                Show(graphView);
+            }
+        }
+        private void OpenSelectedObject()
+        {
+            if (!Selection.activeGameObject) return;
+            HideAll();
+            Reanimator reanimator = Selection.activeGameObject.GetComponent<Reanimator>();
+            graphView.RemoveAllGraphElements();
+            if (reanimator != null)
+            {
+                graphView.SelectedReanimator = reanimator;
+                graphView.Generate();
+                Show(graphView);
+            }
+            else
+            {
+                graphView.SelectedReanimator = null;
+                Show(helpMenu);
+            }
+        }
+        #endregion
 
+        #region Subscribe
         public void Subscribe()
         {
             // Play it safe!
@@ -179,7 +101,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 graphView.OnNodeUnSelected = HandleNodeUnSelect;
                 graphView.graphViewChanged = HandleGraphViewChange;
             }
-            if(helpMenu != null)
+            if (helpMenu != null)
             {
                 addReanimatorButton.clicked += AddReanimator;
             }
@@ -201,5 +123,92 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
         }
+        #endregion
+
+        #region Handlers
+        private void HandleNodeSelect(ReanimatorNodeView nodeView)
+        {
+            Selection.activeObject = nodeView.Node;
+        }
+        private void HandleNodeUnSelect(ReanimatorNodeView nodeView)
+        {
+            if (Selection.activeObject == nodeView.Node)
+            {
+                Selection.activeObject = null;
+            }
+        }
+
+        private GraphViewChange HandleGraphViewChange(GraphViewChange graphViewChange)
+        {
+            if (graphViewChange.movedElements != null)
+            {
+                foreach (var graphElement in graphViewChange.movedElements)
+                {
+                    var nodeView = graphElement as ReanimatorNodeView;
+                    if (nodeView == null)
+                        continue;
+                    var node = nodeView.Node;
+                    node.Position = nodeView.GetPosition().position;
+                }
+            }
+            AssetDatabase.SaveAssets();
+            return graphViewChange;
+        }
+        #endregion
+
+        #region Add Reanimator To Object
+        private void AddReanimator()
+        {
+            GameObject gameObject = Selection.activeGameObject;
+            if (gameObject == null) return;
+            if (gameObject.GetComponent<Reanimator>() != null) return;
+            Reanimator reanimator = gameObject.AddComponent<Reanimator>();
+            reanimator.root = CreateRootNode();
+            OpenSelectedObject();
+        }
+        private SwitchNode CreateRootNode()
+        {
+            var node = ScriptableObject.CreateInstance<SwitchNode>();
+            node.name = "RootSwitch";
+            RGVIOUtility.SaveNode<SwitchNode>(node);
+            return node;
+        }
+        #endregion
+
+        #region Helpers
+        private void Show(VisualElement visualElement)
+        {
+            visualElement.style.display = DisplayStyle.Flex;
+        }
+        private void HideAll()
+        {
+            helpMenu.style.display = DisplayStyle.None;
+            graphView.style.display = DisplayStyle.None;
+        }
+        private void GetGraphView()
+        {
+            graphView = root.Q<ReanimatorGraphView>();
+            helpMenu = root.Q("HelpMenu");
+            toolbar = root.Q<Toolbar>();
+            addReanimatorButton = root.Q<Button>("HelpButton");
+            Subscribe();
+        }
+        #endregion
+
+        /*private void GenerateToolbar()
+        {
+            var toggleCollapse = new Button(clickEvent: ToggleHideAnimationNodes);
+            toggleCollapse.text = "Hide Animation Nodes";
+            toggleCollapse.name = "toggle-button";
+            toolbar.Add(toggleCollapse);
+        }
+        private void ToggleHideAnimationNodes()
+        {
+            isAnimationNodesHidden = !isAnimationNodesHidden;
+            root.Q<Button>("toggle-button").text = isAnimationNodesHidden
+                ? "Hide Animation Nodes"
+                : "Show Animation Nodes";
+            //graphView.ToggleAnimationNodes();
+        }*/
     }
 }

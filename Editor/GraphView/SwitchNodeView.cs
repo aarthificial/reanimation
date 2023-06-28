@@ -14,7 +14,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
     {
         private ReanimatorNode[] reanimatorNodes;
         public new SwitchNode Node { get; set; }
-        public SwitchNodeView(SwitchNode node, int level) : base(node, level)
+        public SwitchNodeView(SwitchNode node, int level, ReanimatorNodeView previousNodeView = null) : base(node, level, previousNodeView)
         {
             Node = node;
             Update();

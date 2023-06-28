@@ -1,28 +1,57 @@
-
 GridBackground {
-    --grid-background-color: #282828;
+    --grid-background-color: rgb(40, 40, 40);
     --line-color: rgba(193, 196, 192, 0.1);
     --thick-line-color: rgba(193, 196, 192, 0.1);
     --spacing: 20;
 }
+
 .graphElement.collapsed #contents {
     display: none;
 }
+
 .edge {
-    opacity: 0.3;
-    --edge-width:20;
-    --edge-color:rgba(193, 196, 192, 1);
+    opacity: 1;
+    --edge-width: 20;
+    --edge-color: rgb(193, 196, 192);
 }
+
 .edge.input {
-    --selected-edge-color:rgba(0.9, 0, 0, 1);
-    --edge-color:rgba(0.9, 0, 0, 1);
+    --selected-edge-color: rgb(0, 0, 0);
+    --edge-color: rgb(0, 0, 0);
+    position: relative;
+    left: auto;
+    opacity: 0;
 }
+
 .edge.output {
-    --edge-color:rgba(0, 0.9, 0, 1);
+    --edge-color: rgb(0, 0, 0);
 }
+
 .edge.selected {
     opacity: 1;
 }
-.end-node #node-border{
-    border-color:rgba(193, 0, 192, 1);
+
+.end-node #node-border {
+    border-color: rgb(193, 0, 192);
+}
+
+.nodeName > TextInput {
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 1px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-right-width: initial;
+    border-top-width: initial;
+    border-bottom-width: initial;
+    margin-left: 0;
+    margin-right: 0;
+    border-top-left-radius: initial;
+    border-bottom-left-radius: initial;
+    border-top-right-radius: initial;
+    border-bottom-right-radius: initial;
+}
+
+.nodeName {
+    width: 100%;
+    margin-left: 20px;
 }
