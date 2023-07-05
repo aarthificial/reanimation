@@ -39,26 +39,28 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         {
             string path = pathByType[typeof(T)];
             string nodeName = node.name;
-            for (int i = 0; !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(Path.Combine(baseSwitchesPath, ToName(nodeName)))); i++)
+            for (int i = 0; !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(Path.Combine(baseSwitchesPath, ToAssetName(nodeName)))); i++)
             {
                 nodeName = node.name + "_" + i;
             }
-            AssetDatabase.CreateAsset(node, Path.Combine(path, ToName(nodeName)));
+            AssetDatabase.CreateAsset(node, Path.Combine(path, ToAssetName(nodeName)));
         }
         public static void SaveNode(ReanimatorNode node)
         {
             string path = pathByType[node.GetType()];
             string nodeName = node.name;
-            for (int i = 0; !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(Path.Combine(baseSwitchesPath, ToName(nodeName)))); i++)
+            for (int i = 0; !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(Path.Combine(baseSwitchesPath, ToAssetName(nodeName)))); i++)
             {
                 nodeName = node.name + "_" + i;
             }
-            AssetDatabase.CreateAsset(node, Path.Combine(path, ToName(nodeName)));
+            AssetDatabase.CreateAsset(node, Path.Combine(path, ToAssetName(nodeName)));
         }
-        public static bool RenameNode<T>(string oldName, string newName) where T : ReanimatorNode
+        public static bool RenameNode<T>(ReanimatorNode node, string newName) where T : ReanimatorNode
         {
-            string path = pathByType[typeof(T)];
-            string s = AssetDatabase.RenameAsset(Path.Combine(path, ToName(oldName)), ToName(newName));
+            string path = AssetDatabase.GetAssetPath(node);
+            if(path == null) path = Path.Combine(pathByType[typeof(T)], ToAssetName(node.name));
+            
+            string s = AssetDatabase.RenameAsset(path, ToAssetName(newName));
             if (s.Length > 0)
             {
                 Debug.LogError(s);
@@ -71,7 +73,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             string path = pathByType[typeof(T)];
             AssetDatabase.DeleteAsset(Path.Combine(path, name));
         }
-        private static string ToName(string name)
+        private static string ToAssetName(string name)
         {
             return name + ".asset";
         }

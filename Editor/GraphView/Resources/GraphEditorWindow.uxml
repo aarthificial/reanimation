@@ -1,12 +1,8 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" 
-noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <Style src="GraphView.uss" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.aarthificial.reanimation/Editor/GraphView/Resources/GraphView.uss?fileID=7433441132597879392&amp;guid=153cf10f527204b5ebdce4d8e8004c0e&amp;type=3#GraphView" />
     <uie:Toolbar />
-    <Aarthificial.Reanimation.Editor.GraphView.ReanimatorGraphView focusable="true" style="flex-grow: 1; display: none;" />
+    <Aarthificial.Reanimation.Editor.GraphView.ReanimatorGraphView focusable="true" name="Graph" style="flex-grow: 1; display: none;" />
     <ui:VisualElement name="HelpMenu" focusable="true" style="max-width: none; max-height: none; min-width: auto; min-height: auto; align-items: center; justify-content: center; display: none; width: 100%; height: 100%;">
         <ui:Button text="Add Reanimator" display-tooltip-when-elided="true" name="HelpButton" style="position: relative; left: auto; top: auto; bottom: auto; width: 50%; height: 30px;" />
-        <ui:VisualElement>
-            <ui:TextField picking-mode="Ignore" value="New Node" text="New Node" multiline="false" style="background-color: rgba(255, 255, 255, 0);" />
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

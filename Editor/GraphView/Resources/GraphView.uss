@@ -3,6 +3,7 @@ GridBackground {
     --line-color: rgba(193, 196, 192, 0.1);
     --thick-line-color: rgba(193, 196, 192, 0.1);
     --spacing: 20;
+    opacity: 1;
 }
 
 .graphElement.collapsed #contents {
@@ -33,11 +34,15 @@ GridBackground {
 
 .end-node #node-border {
     border-color: rgb(193, 0, 192);
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
 }
 
 .nodeName > TextInput {
     background-color: rgba(0, 0, 0, 0);
-    border-left-width: 1px;
+    border-left-width: 0;
     padding-left: 10px;
     padding-right: 10px;
     border-right-width: initial;
@@ -49,9 +54,21 @@ GridBackground {
     border-bottom-left-radius: initial;
     border-top-right-radius: initial;
     border-bottom-right-radius: initial;
+    -unity-text-align: middle-center;
 }
 
 .nodeName {
     width: 100%;
-    margin-left: 20px;
+    margin-left: 0;
+}
+
+.graphView {
+    background-color: rgb(32, 32, 32);
+}
+
+.animationNode #node-border {
+    border-left-color: rgb(73, 100, 178);
+    border-right-color: rgb(73, 100, 178);
+    border-top-color: rgb(73, 100, 178);
+    border-bottom-color: rgb(73, 100, 178);
 }

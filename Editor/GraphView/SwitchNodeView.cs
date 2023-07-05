@@ -9,6 +9,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
     using Aarthificial.Reanimation.Nodes;
     using System.Drawing;
     using System.Linq;
+    using UnityEngine.EventSystems;
 
     public class SwitchNodeView : ReanimatorNodeView
     {

@@ -7,6 +7,9 @@ namespace Aarthificial.Reanimation.Editor.GraphView
     using UnityEngine.UIElements;
     using System.Linq;
     using Aarthificial.Reanimation.Nodes;
+    using UnityEngine.EventSystems;
+    using UnityEditor;
+    using System.Reflection;
 
     public class ReanimatorGraphView : GraphView
     {
@@ -17,7 +20,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         public Action<ReanimatorNodeView> OnNodeUnSelected;
         public Reanimator SelectedReanimator { get; set; }
 
-        private bool isAnimationNodesHidden = false;
+        //private bool isAnimationNodesHidden = false;
         private SwitchNode _rootNode;
 
         public ReanimatorGraphView()
@@ -32,15 +35,19 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             // Setup Zoom
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
 
-            // Setup Grid
-            var grid = new GridBackground();
-            Insert(0, grid);
-            grid.StretchToParentSize();
+            RegisterCallback<PointerDownEvent>(SelectGameObject);
         }
-
+        public override EventPropagation DeleteSelection()
+        {
+            foreach (ReanimatorNodeView node in selection)
+            {
+                node.DetachFromParent();
+            }
+            return EventPropagation.Stop;
+        }
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-            VisualElement contentViewContainer = ElementAt(1);
+            VisualElement contentViewContainer = ElementAt(0);
             Vector3 screenMousePosition = evt.localMousePosition;
             Vector2 worldMousePosition =
                 screenMousePosition - contentViewContainer.transform.position;
@@ -64,11 +71,21 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                             Generate();
                         });
                         break;
+                    default:
+                        evt.menu.AppendAction("Edit Name", actionEvent =>
+                        {
+                            reanimatorNodeView.EnableEditName();
+                        });
+                        break;
                 }
             }
 
         }
 
+        private void SelectGameObject(PointerDownEvent ev)
+        {
+            Selection.activeGameObject = SelectedReanimator.gameObject;
+        }
 
         #region Generate Graph
         public void Generate(ReanimatorNode rootNode = null)
@@ -99,6 +116,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             ports.ForEach(
                 (port) =>
                 {
+                    
                     port.Clear();
                 }
             );
@@ -143,6 +161,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             ReanimatorNodeView nodeView;
             if (node is SwitchNode switchNode)
                 nodeView = new SwitchNodeView(switchNode, level, prevNodeView);
+            else if (node is SimpleAnimationNode simpleAnimationNode)
+                nodeView = new SimpleAnimationNodeView(simpleAnimationNode, level, prevNodeView);
             else
                 nodeView = new ReanimatorNodeView(node, level, prevNodeView);
             node.OnValidated += () => OnNodeValidated(nodeView);
@@ -150,6 +170,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 OnNodeSelected?.Invoke(nodeView);
             nodeView.OnNodeUnSelected += (ReanimatorNodeView nodeView) =>
                 OnNodeUnSelected?.Invoke(nodeView);
+            nodeView.OnDetached += () => Generate();
             AddElement(nodeView);
             return nodeView;
         }

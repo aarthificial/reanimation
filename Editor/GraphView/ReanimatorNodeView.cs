@@ -9,12 +9,14 @@ namespace Aarthificial.Reanimation.Editor.GraphView
     using Aarthificial.Reanimation.Nodes;
     using System.Drawing;
     using System.Linq;
+    using UnityEngine.UI;
 
     public class ReanimatorNodeView : Node
     {
         public static Dictionary<int, int> levelCounts = new Dictionary<int, int>();
-        public Action<ReanimatorNodeView> OnNodeSelected;
-        public Action<ReanimatorNodeView> OnNodeUnSelected;
+        public Action<ReanimatorNodeView> OnNodeSelected = delegate { };
+        public Action<ReanimatorNodeView> OnNodeUnSelected = delegate { };
+        public Action OnDetached = delegate { };
 
         public string GUID;
 
@@ -29,9 +31,15 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 RefreshExpandedState();
             }
         }
+
         public int Level { get; set; }
+
         public string Name { get; set; }
+
         public ReanimatorNodeView PreviousNodeView { get; set; }
+
+        private TextField nodeName = new TextField();
+        private VisualElement textInput;
 
         public ReanimatorNodeView(ReanimatorNode node, int level, ReanimatorNodeView previousNodeView = null)
         {
@@ -40,16 +48,24 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             GUID = Guid.NewGuid().ToString();
             Name = node.name;
             PreviousNodeView = previousNodeView;
-            
             SetPosition(new Rect(LevelToPosition(level), Vector2.zero));
-            Draw();
+            RegisterCallback<PointerDownEvent>(EnableEditName);
+            nodeName.RegisterCallback<PointerOutEvent>(DisableEditName);
+            TuneUIChildrens();
             GeneratePorts();
+        }
+        
+        ~ReanimatorNodeView()
+        {
+            nodeName.UnregisterCallback<FocusOutEvent>(ChangeName);
+            UnregisterCallback<PointerDownEvent>(EnableEditName);
+            nodeName.UnregisterCallback<PointerOutEvent>(DisableEditName);
         }
 
         public void CreateChildAsset<T>() where T : ReanimatorNode
         {
             var node = ScriptableObject.CreateInstance<T>();
-            SwitchNode parentNode = Node as SwitchNode;//parent node always SwitchNode, cause AnimationNode cannot have other nodes
+            SwitchNode parentNode = Node as SwitchNode;
             node.name = "New Node";
             List<ReanimatorNode> nodes = parentNode.Nodes.ToList();
             nodes.Add(node);
@@ -57,14 +73,49 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             RGVIOUtility.SaveNode<T>(node);
         }
 
-        private void Draw()
+        public override void OnSelected()
         {
-            TextField nodeName = new TextField();
+            base.OnSelected();
+            OnNodeSelected?.Invoke(this);
+        }
+
+        public override void OnUnselected()
+        {
+            base.OnUnselected();
+            OnNodeUnSelected?.Invoke(this);
+        }
+
+        public void DetachFromParent()
+        {
+            SwitchNode switchNode = PreviousNodeView.Node as SwitchNode;
+            List<ReanimatorNode> nodes = switchNode.Nodes.ToList();
+            nodes.Remove(Node);
+            switchNode.Nodes = nodes.ToArray();
+            OnDetached.Invoke();
+        }
+
+        private void TuneUIChildrens()
+        {
             nodeName.AddToClassList("nodeName");
             nodeName.value = Node.name;
+            textInput = nodeName.Q("unity-text-input");
+            DisableEditName(null);
             titleContainer.Clear(); //removing expand button
             titleContainer.Add(nodeName);
             nodeName.RegisterCallback<FocusOutEvent>(ChangeName);
+        }
+
+        public void EnableEditName(PointerDownEvent ev = null)
+        {
+            if (ev == null || ev.clickCount == 2)
+            {
+                textInput.pickingMode = PickingMode.Position;
+                textInput.Focus();
+            }
+        }
+        public void DisableEditName(PointerOutEvent ev = null)
+        {
+            textInput.pickingMode = PickingMode.Ignore;
         }
 
         private Vector2 LevelToPosition(int level)
@@ -83,10 +134,10 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             switch (Node.GetType().Name)
             {
                 case nameof(SwitchNode):
-                    if (!RGVIOUtility.RenameNode<SwitchNode>(Name, nodeName.value)) nodeName.value = Name;
+                    if (!RGVIOUtility.RenameNode<SwitchNode>(Node, nodeName.value)) nodeName.value = Name;
                     break;
                 case nameof(SimpleAnimationNode):
-                    if (!RGVIOUtility.RenameNode<SimpleAnimationNode>(Name, nodeName.value)) nodeName.value = Name;
+                    if (!RGVIOUtility.RenameNode<SimpleAnimationNode>(Node, nodeName.value)) nodeName.value = Name;
                     break;
             }
             Name = nodeName.value;
@@ -107,8 +158,9 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
                 var inputPort = GeneratePort(Direction.Input, Port.Capacity.Multi);
                 inputPort.portName = PreviousNodeView.Node.name.ToString();
+                inputPort.pickingMode = PickingMode.Ignore;
                 var edge = inputPort.ConnectTo(prevOutput);
-
+                edge.pickingMode = PickingMode.Ignore;
                 inputPort.edgeConnector.target.Add(edge);
 
                 inputContainer.Add(inputPort);
@@ -120,6 +172,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 {
                     var outputPort = GeneratePort(Direction.Output, Port.Capacity.Multi);
                     outputPort.portName = (tempNode == null) ? "None" : tempNode.name.ToString();
+                    outputPort.pickingMode = PickingMode.Ignore;
                     outputContainer.Add(outputPort);
                 }
             }
@@ -140,17 +193,5 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             ); //Arbitrary type
         }
         #endregion
-
-        /*public override void OnSelected()
-        {
-            base.OnSelected();
-            OnNodeSelected?.Invoke(this);
-        }
-
-        public override void OnUnselected()
-        {
-            base.OnUnselected();
-            OnNodeUnSelected?.Invoke(this);
-        }*/
     }
 }

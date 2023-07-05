@@ -8,13 +8,16 @@ namespace Aarthificial.Reanimation.Editor.GraphView
     using UnityEngine.UIElements;
     using UnityEditor.UIElements;
     using UnityEditor.Experimental.GraphView;
+    using UnityEngine.EventSystems;
 
-    public class ReanimatorEditorWindow : EditorWindow
+    public partial class ReanimatorEditorWindow : EditorWindow
     {
         private ReanimatorGraphView graphView;
+
         private VisualElement helpMenu;
         private Button addReanimatorButton;
         private VisualElement toolbar;
+        private DragAndDropManipulator manipulator;
 
         private SwitchNode rootNode;
         //private bool isAnimationNodesHidden = false;
@@ -27,7 +30,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             var window = GetWindow<ReanimatorEditorWindow>();
             window.titleContent = new GUIContent(text: "Reanimator Graph");
         }
-
+        
         public void CreateGUI()
         {
             var visualTree = Resources.Load<VisualTreeAsset>("GraphEditorWindow");
@@ -106,6 +109,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 addReanimatorButton.clicked += AddReanimator;
             }
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            manipulator = new(root);
         }
 
         // Unsubcribe from event
@@ -122,6 +126,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 addReanimatorButton.clicked -= AddReanimator;
             }
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            if(manipulator != null)
+                manipulator.target.RemoveManipulator(manipulator);
         }
         #endregion
 
