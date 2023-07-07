@@ -17,7 +17,13 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         public SimpleAnimationNodeView(SimpleAnimationNode node, int level, ReanimatorNodeView previousNodeView = null) : base(node, level, previousNodeView)
         {
             Node = node;
-            this.AddToClassList("animationNode");        
+            StylesSet();
+        }
+
+        private void StylesSet()
+        {
+            textInput.style.color = StylesUtility.Colors.Light;
+            titleContainer.style.backgroundColor = StylesUtility.Colors.Dark;
         }
     }
 }

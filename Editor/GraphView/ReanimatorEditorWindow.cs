@@ -76,6 +76,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             if (!Selection.activeGameObject) return;
             HideAll();
             Reanimator reanimator = Selection.activeGameObject.GetComponent<Reanimator>();
+            if (reanimator == graphView.SelectedReanimator) return;
             graphView.RemoveAllGraphElements();
             if (reanimator != null)
             {

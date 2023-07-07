@@ -13,7 +13,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
     public class ReanimatorNodeView : Node
     {
-        public static Dictionary<int, int> levelCounts = new Dictionary<int, int>();
+        #region Properties and Fields
+        public static Dictionary<int, List<ReanimatorNodeView>> Grid = new Dictionary<int, List<ReanimatorNodeView>>();
         public Action<ReanimatorNodeView> OnNodeSelected = delegate { };
         public Action<ReanimatorNodeView> OnNodeUnSelected = delegate { };
         public Action OnDetached = delegate { };
@@ -32,34 +33,143 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             }
         }
 
-        public int Level { get; set; }
+        public Vector2Int GridPosition { get; set; }
 
         public string Name { get; set; }
 
-        public ReanimatorNodeView PreviousNodeView { get; set; }
+        public ReanimatorNodeView Parent { get; set; }
 
-        private TextField nodeName = new TextField();
-        private VisualElement textInput;
+        protected TextField nodeName = new TextField();
 
-        public ReanimatorNodeView(ReanimatorNode node, int level, ReanimatorNodeView previousNodeView = null)
+        protected VisualElement textInput;
+        #endregion
+
+        #region Styles
+        private void SetStyles()
         {
-            Level = level;
-            Node = node;
+            if (Parent != null)
+                Parent.RegisterCallback<GeometryChangedEvent>(SetPositionOnChanges);
+
+            //Node Name 
+            {
+                nodeName.AddToClassList("nodeName");
+                nodeName.value = Node.name;
+                textInput = nodeName.Q("unity-text-input");
+                DisableEditName(null);
+                nodeName.RegisterCallback<FocusOutEvent>(ChangeName);
+                textInput.style.fontSize = 24;
+                textInput.style.backgroundColor = StylesUtility.Colors.Transparent;
+                StylesUtility.SetBorderWidth(textInput, 0);
+                nodeName.style.paddingLeft = 10;
+                nodeName.style.paddingRight = 10;
+                textInput.style.color = StylesUtility.Colors.Dark;
+            }
+
+            //Tittle Container
+            {
+                titleContainer.Clear(); //removing expand button
+                titleContainer.Add(nodeName);
+                
+            }
+
+            //Node border
+            {
+                RemoveAt(1); //remove border on hover, then we add our effect
+                VisualElement border = this.Q("node-border");
+                StylesUtility.SetBorderRadius(border, 14);
+                StylesUtility.SetBorderWidth(border, 2);
+                StylesUtility.SetBorderColor(border, StylesUtility.Colors.Light);
+            }
+
+            //Hover effect
+            {
+                RegisterCallback((PointerEnterEvent ev) => style.scale = new StyleScale(new Scale(new Vector3(1.05f,1.05f,1.05f))));
+                RegisterCallback((PointerOutEvent ev) => style.scale = new StyleScale(new Scale(Vector3.one)));
+                RegisterCallback((PointerUpEvent ev) => style.scale = new StyleScale(new Scale(new Vector3(1.05f, 1.05f, 1.05f))));
+                RegisterCallback((PointerDownEvent ev) => style.scale = new StyleScale(new Scale(Vector3.one)));
+            }
+        }
+
+        private void SetStylesToPort(ref Port port)
+        {
+            port.portName = "";
+            port.pickingMode = PickingMode.Ignore;
+            port.portColor = StylesUtility.Colors.Light;
+            port.style.opacity = 0;
+            StylesUtility.SetPadding(port, 0);
+            StylesUtility.SetMargin(port, 0);
+            port.style.width = 0;
+            port.style.top = 5;
+            port.style.left = -5;
+        }
+
+        private void SetPositionOnChanges(GeometryChangedEvent ev)
+        {
+            Vector2 pos = LevelToPosition();
+            if (pos == GetPosition().position) return;
+
+            SetPosition(new Rect(pos, Vector2.zero));
+
+            //Next Code work because its executes on second frame(or later), when all nodes already generated
+            if(Parent.Node is SwitchNode switchNode && GridPosition.y - 1 >= 0 && Grid[GridPosition.x][GridPosition.y-1].Parent != Parent)
+            {
+                int offset = GridPosition.y + (int)((switchNode.Nodes.Count() - 1) / 2) - Parent.GridPosition.y;
+                offset = offset < 0 ? 0 : offset;
+                offset = Parent.GridPosition.y >= GridPosition.y ? 0 : offset;
+                foreach (ReanimatorNodeView node in Grid[Parent.GridPosition.x])
+                {
+                    if (node.GridPosition.y > Parent.GridPosition.y)
+                    {
+                        node.GridPosition = new Vector2Int(node.GridPosition.x, node.GridPosition.y + offset);
+                    }
+                }
+                Parent.GridPosition = new Vector2Int(Parent.GridPosition.x, offset + Parent.GridPosition.y);
+            }
+        }
+
+        private Vector2 LevelToPosition()
+        {
+            var position = new Vector2();
+            if(Parent != null)
+            {
+                position = new Vector2(Parent.GetPosition().x + GetMaxWidth(Grid[Parent.GridPosition.x]) + 100, (Parent.titleContainer.resolvedStyle.height + 50) * GridPosition.y);
+            }
+            
+            return position;
+        }
+        private float GetMaxWidth(List<ReanimatorNodeView> nodes)
+        {
+            float maxWidth = (from node in nodes
+                             orderby node.titleContainer.resolvedStyle.width
+                             select node.titleContainer.resolvedStyle.width).Last();
+            return maxWidth;
+        }
+
+        #endregion
+
+        public ReanimatorNodeView(ReanimatorNode node, int xPos, ReanimatorNodeView previousNodeView = null)
+        {
             GUID = Guid.NewGuid().ToString();
+            if (Grid.ContainsKey(xPos))
+            {
+                Grid[xPos].Add(this);
+            }
+            else
+            {
+                Grid[xPos] = new List<ReanimatorNodeView>
+                {
+                    this
+                };
+            }
+            GridPosition = new Vector2Int(xPos, Grid[xPos].Count - 1);
+
+            Node = node;
             Name = node.name;
-            PreviousNodeView = previousNodeView;
-            SetPosition(new Rect(LevelToPosition(level), Vector2.zero));
+            Parent = previousNodeView; 
             RegisterCallback<PointerDownEvent>(EnableEditName);
             nodeName.RegisterCallback<PointerOutEvent>(DisableEditName);
-            TuneUIChildrens();
+            SetStyles();
             GeneratePorts();
-        }
-        
-        ~ReanimatorNodeView()
-        {
-            nodeName.UnregisterCallback<FocusOutEvent>(ChangeName);
-            UnregisterCallback<PointerDownEvent>(EnableEditName);
-            nodeName.UnregisterCallback<PointerOutEvent>(DisableEditName);
         }
 
         public void CreateChildAsset<T>() where T : ReanimatorNode
@@ -87,23 +197,14 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
         public void DetachFromParent()
         {
-            SwitchNode switchNode = PreviousNodeView.Node as SwitchNode;
+            SwitchNode switchNode = Parent.Node as SwitchNode;
             List<ReanimatorNode> nodes = switchNode.Nodes.ToList();
             nodes.Remove(Node);
             switchNode.Nodes = nodes.ToArray();
             OnDetached.Invoke();
         }
 
-        private void TuneUIChildrens()
-        {
-            nodeName.AddToClassList("nodeName");
-            nodeName.value = Node.name;
-            textInput = nodeName.Q("unity-text-input");
-            DisableEditName(null);
-            titleContainer.Clear(); //removing expand button
-            titleContainer.Add(nodeName);
-            nodeName.RegisterCallback<FocusOutEvent>(ChangeName);
-        }
+        
 
         public void EnableEditName(PointerDownEvent ev = null)
         {
@@ -111,22 +212,16 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             {
                 textInput.pickingMode = PickingMode.Position;
                 textInput.Focus();
+                textInput.SendEvent(new PointerMoveEvent());
             }
+            ev.StopPropagation();
         }
         public void DisableEditName(PointerOutEvent ev = null)
         {
             textInput.pickingMode = PickingMode.Ignore;
         }
 
-        private Vector2 LevelToPosition(int level)
-        {
-            if (levelCounts.ContainsKey(level))
-                levelCounts[level]++;
-            else
-                levelCounts[level] = 0;
-            var position = node.Position == Vector2.zero ? new Vector2(250 * level, 150 * levelCounts[level]) : node.Position;
-            return position;
-        }
+        
         
         private void ChangeName(FocusOutEvent evt)
         {
@@ -148,22 +243,18 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         {
             inputContainer.Clear();
             outputContainer.Clear();
-            if (PreviousNodeView != null)
+            if (Parent != null)
             {
                 // only Switch nodes can have outputs
                 // meaning it was the previous node
-                var prevSwitchNode = PreviousNodeView.Node as SwitchNode;
-                var myIndex = prevSwitchNode.Nodes.ToList().IndexOf(Node);
-                var prevOutput = PreviousNodeView.outputContainer[myIndex] as Port;
+                var prevOutput = Parent.titleContainer.Children().Last() as Port;
 
                 var inputPort = GeneratePort(Direction.Input, Port.Capacity.Multi);
-                inputPort.portName = PreviousNodeView.Node.name.ToString();
-                inputPort.pickingMode = PickingMode.Ignore;
                 var edge = inputPort.ConnectTo(prevOutput);
                 edge.pickingMode = PickingMode.Ignore;
                 inputPort.edgeConnector.target.Add(edge);
-
-                inputContainer.Add(inputPort);
+                SetStylesToPort(ref inputPort);
+                titleContainer.Insert(0, inputPort);
             }
             var switchNode = Node as SwitchNode;
             if (switchNode != null)
@@ -171,14 +262,9 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                 foreach (var tempNode in switchNode.Nodes)
                 {
                     var outputPort = GeneratePort(Direction.Output, Port.Capacity.Multi);
-                    outputPort.portName = (tempNode == null) ? "None" : tempNode.name.ToString();
-                    outputPort.pickingMode = PickingMode.Ignore;
-                    outputContainer.Add(outputPort);
+                    SetStylesToPort(ref outputPort);
+                    titleContainer.Add(outputPort);
                 }
-            }
-            if (switchNode == null || switchNode.Nodes.Length == 0)
-            {
-                AddToClassList("end-node");
             }
             RefreshExpandedState();
             RefreshPorts();

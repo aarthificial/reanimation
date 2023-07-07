@@ -19,6 +19,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         {
             Node = node;
             Update();
+            titleContainer.style.backgroundColor = StylesUtility.Colors.Light; // need set backgroundColor in code cause i think Node set it also inside and uss not work
         }
         public bool NodesChanged()
         {

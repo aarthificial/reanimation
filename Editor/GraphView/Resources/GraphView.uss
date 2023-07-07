@@ -1,47 +1,28 @@
-GridBackground {
-    --grid-background-color: rgb(40, 40, 40);
-    --line-color: rgba(193, 196, 192, 0.1);
-    --thick-line-color: rgba(193, 196, 192, 0.1);
-    --spacing: 20;
-    opacity: 1;
+.nodeName {
+    width: 100%;
+    margin-left: 0;
 }
 
-.graphElement.collapsed #contents {
-    display: none;
+.graphView {
+    background-color: rgb(32, 32, 32);
 }
 
-.edge {
-    opacity: 1;
-    --edge-width: 20;
-    --edge-color: rgb(193, 196, 192);
+.node #node-border {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgb(210, 210, 210);
+    border-right-color: rgb(210, 210, 210);
+    border-top-color: rgb(210, 210, 210);
+    border-bottom-color: rgb(210, 210, 210);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 
-.edge.input {
-    --selected-edge-color: rgb(0, 0, 0);
-    --edge-color: rgb(0, 0, 0);
-    position: relative;
-    left: auto;
-    opacity: 0;
-}
-
-.edge.output {
-    --edge-color: rgb(0, 0, 0);
-}
-
-.edge.selected {
-    opacity: 1;
-}
-
-.end-node #node-border {
-    border-color: rgb(193, 0, 192);
-    border-left-color: rgb(0, 0, 0);
-    border-right-color: rgb(0, 0, 0);
-    border-top-color: rgb(0, 0, 0);
-    border-bottom-color: rgb(0, 0, 0);
-}
-
-.nodeName > TextInput {
-    background-color: rgba(0, 0, 0, 0);
+SimpleAnimationNodeView .nodeName > TextInput {
     border-left-width: 0;
     padding-left: 10px;
     padding-right: 10px;
@@ -55,20 +36,6 @@ GridBackground {
     border-top-right-radius: initial;
     border-bottom-right-radius: initial;
     -unity-text-align: middle-center;
-}
-
-.nodeName {
-    width: 100%;
-    margin-left: 0;
-}
-
-.graphView {
-    background-color: rgb(32, 32, 32);
-}
-
-.animationNode #node-border {
-    border-left-color: rgb(73, 100, 178);
-    border-right-color: rgb(73, 100, 178);
-    border-top-color: rgb(73, 100, 178);
-    border-bottom-color: rgb(73, 100, 178);
+    color: rgb(254, 255, 245);
+    background-color: rgba(0, 0, 0, 0);
 }

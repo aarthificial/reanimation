@@ -29,8 +29,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
             // Enable common graph interactions
             this.AddManipulator(new ContentDragger());
-            this.AddManipulator(new SelectionDragger());
-            this.AddManipulator(new RectangleSelector());
+            //this.AddManipulator(new SelectionDragger());
+            //this.AddManipulator(new RectangleSelector());
 
             // Setup Zoom
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
@@ -95,7 +95,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             {
                 rootNode = SelectedReanimator.root;
             }
-            ReanimatorNodeView.levelCounts = new Dictionary<int, int>();
+            ReanimatorNodeView.Grid = new Dictionary<int, List<ReanimatorNodeView>>();
             if (rootNode == null)
                 rootNode = _rootNode;
             if (rootNode is SwitchNode switchNode)
