@@ -73,13 +73,11 @@ namespace Aarthificial.Reanimation.Editor.GraphView
                             Generate();
                         });
                         break;
-                    default:
-                        evt.menu.AppendAction("Edit Name", actionEvent =>
-                        {
-                            reanimatorNodeView.EnableEditName();
-                        });
-                        break;
                 }
+                evt.menu.AppendAction("Edit Name", actionEvent =>
+                {
+                    reanimatorNodeView.EnableEditName();
+                });
             }
 
         }

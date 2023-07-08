@@ -170,10 +170,11 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             Node = node;
             Name = node.name;
             Parent = previousNodeView; 
-            RegisterCallback<PointerDownEvent>(EnableEditName);
-            nodeName.RegisterCallback<PointerOutEvent>(DisableEditName);
             SetStyles();
             GeneratePorts();
+
+            RegisterCallback<MouseDownEvent>(EnableEditName);
+            textInput.RegisterCallback<FocusOutEvent>(DisableEditName);
         }
 
         public void UnregisterAllCallbacks()
@@ -221,18 +222,24 @@ namespace Aarthificial.Reanimation.Editor.GraphView
 
         
 
-        public void EnableEditName(PointerDownEvent ev = null)
+        public void EnableEditName(MouseDownEvent ev = null)
         {
             if (ev == null || ev.clickCount == 2)
             {
                 textInput.pickingMode = PickingMode.Position;
                 textInput.Focus();
                 textInput.SendEvent(new PointerMoveEvent());
+                OnSelected();
             }
-            ev.StopPropagation();
+            if(ev != null)
+            {
+                ev.StopPropagation();
+            }
+                
         }
-        public void DisableEditName(PointerOutEvent ev = null)
+        public void DisableEditName(FocusOutEvent ev = null)
         {
+            
             textInput.pickingMode = PickingMode.Ignore;
         }
 

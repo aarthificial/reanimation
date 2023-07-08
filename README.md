@@ -39,4 +39,37 @@ not because I'm trying to popularize it or something.
 
 
 ## Graph View
-Open the Reanimator Graph View from the Window->Reanimator->Reanimator Graph and select a root node to get it displayed.
+### How to open Reanimator Graph View
+
+Open the Reanimator Graph View from the Window->Reanimator->Reanimator Graph. Then select game object from scene to add reanimator or edit its nodes. 
+
+### How to create node
+
+There are several methods:
+
+1. Right click on switch node and choose "Create switch node" or "Create animation node" in contextual menu.
+2. Create node in project window and attach it(see "How to add created node") to any switch node in Reanimator Graph
+
+### How to edit node
+
+Click any node in Reanimator Graph and edit it in inspector
+
+### How to edit reanimator
+
+Click any empty space in Reanimator Graph and edit it in inspector
+
+### How to change name of node
+
+There are several methods:
+
+1. Right click on node and choose "Edit Name" in contextual menu. To confirm press "enter" button.
+2. Double Click on node. To confirm press "enter" button.
+
+### How to add created node
+
+Drag node asset file from project to switch node in Reanimator Graph
+
+### How to detach node from another node
+
+Click on node in Reanimator Graph and press "delete" button
+
