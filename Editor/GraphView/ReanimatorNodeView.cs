@@ -111,9 +111,13 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             SetPosition(new Rect(pos, Vector2.zero));
 
             //Next Code work because its executes on second frame(or later), when all nodes already generated
-            if(Parent.Node is SwitchNode switchNode && GridPosition.y - 1 >= 0 && Grid[GridPosition.x][GridPosition.y-1].Parent != Parent)
+            if(Parent.Node is SwitchNode switchNode)
             {
-                int offset = GridPosition.y + (int)((switchNode.Nodes.Count() - 1) / 2) - Parent.GridPosition.y;
+                if (!(Grid.Count > 0 && GridPosition.y - 1 >= 0 
+                    && Grid[GridPosition.x][GridPosition.y - 1].Parent != Parent))
+                    return;
+                int offset = GridPosition.y + (int)((switchNode.Nodes.Count() - 1) / 2);
+                offset -= Parent.GridPosition.y;
                 offset = offset < 0 ? 0 : offset;
                 offset = Parent.GridPosition.y >= GridPosition.y ? 0 : offset;
                 foreach (ReanimatorNodeView node in Grid[Parent.GridPosition.x])
@@ -180,7 +184,12 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             List<ReanimatorNode> nodes = parentNode.Nodes.ToList();
             nodes.Add(node);
             parentNode.Nodes = nodes.ToArray();
-            RGVIOUtility.SaveNode<T>(node);
+            RGVIOUtility.CreateNode(GetRootNode(this), node);
+        }
+        private ReanimatorNode GetRootNode(ReanimatorNodeView nodeView)
+        {
+            if(nodeView.Parent != null) return GetRootNode(nodeView.Parent);
+            return nodeView.Node;
         }
 
         public override void OnSelected()
@@ -229,10 +238,10 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             switch (Node.GetType().Name)
             {
                 case nameof(SwitchNode):
-                    if (!RGVIOUtility.RenameNode<SwitchNode>(Node, nodeName.value)) nodeName.value = Name;
+                    if (!RGVIOUtility.RenameNode(GetRootNode(this), Node, nodeName.value)) nodeName.value = Name;
                     break;
                 case nameof(SimpleAnimationNode):
-                    if (!RGVIOUtility.RenameNode<SimpleAnimationNode>(Node, nodeName.value)) nodeName.value = Name;
+                    if (!RGVIOUtility.RenameNode(GetRootNode(this), Node, nodeName.value)) nodeName.value = Name;
                     break;
             }
             Name = nodeName.value;

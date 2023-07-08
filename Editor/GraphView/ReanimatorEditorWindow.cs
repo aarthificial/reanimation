@@ -76,7 +76,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             if (!Selection.activeGameObject) return;
             HideAll();
             Reanimator reanimator = Selection.activeGameObject.GetComponent<Reanimator>();
-            if (reanimator == graphView.SelectedReanimator) return;
+            if (reanimator != null && reanimator == graphView.SelectedReanimator) return;
             graphView.RemoveAllGraphElements();
             if (reanimator != null)
             {
@@ -170,14 +170,16 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             if (gameObject == null) return;
             if (gameObject.GetComponent<Reanimator>() != null) return;
             Reanimator reanimator = gameObject.AddComponent<Reanimator>();
-            reanimator.root = CreateRootNode();
+            reanimator.root = CreateRootNode(reanimator);
             OpenSelectedObject();
         }
-        private SwitchNode CreateRootNode()
+        private SwitchNode CreateRootNode(Reanimator reanimator)
         {
             var node = ScriptableObject.CreateInstance<SwitchNode>();
             node.name = "RootSwitch";
-            RGVIOUtility.SaveNode<SwitchNode>(node);
+            string folder = reanimator.gameObject.name;
+            folder = RGVIOUtility.CombineFolderWithNodeFolder(folder, node);
+            RGVIOUtility.CreateNode(RGVIOUtility.FolderInBase(folder), node);
             return node;
         }
         #endregion
