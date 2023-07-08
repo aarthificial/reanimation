@@ -176,6 +176,12 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             GeneratePorts();
         }
 
+        public void UnregisterAllCallbacks()
+        {
+            if (Parent != null)
+                Parent.UnregisterCallback<GeometryChangedEvent>(SetPositionOnChanges);
+        }
+
         public void CreateChildAsset<T>() where T : ReanimatorNode
         {
             var node = ScriptableObject.CreateInstance<T>();

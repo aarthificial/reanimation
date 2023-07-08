@@ -36,6 +36,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
 
             RegisterCallback<PointerDownEvent>(SelectGameObject);
+
+            style.backgroundColor = StylesUtility.Colors.Dark;
         }
         public override EventPropagation DeleteSelection()
         {
@@ -124,7 +126,10 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             nodes.ForEach(
                 (node) =>
                 {
+                    if(node is ReanimatorNodeView reanimatorView)
+                        reanimatorView.UnregisterAllCallbacks();
                     node.Clear();
+                    
                 }
             );
 
