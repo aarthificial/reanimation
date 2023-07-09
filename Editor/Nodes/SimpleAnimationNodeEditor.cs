@@ -15,15 +15,43 @@ namespace Aarthificial.Reanimation.Editor.Nodes
         [MenuItem("Assets/Create/Reanimator/Simple Animation (From Textures)", false, 400)]
         private static void CreateFromTextures()
         {
-            var trailingNumbersRegex = new Regex(@"(\d+$)");
-
             var sprites = new List<Sprite>();
-            var textures = Selection.GetFiltered<Texture2D>(SelectionMode.Assets);
+            var textures = GetFilteredSelection<Texture2D>();
             foreach (var texture in textures)
             {
                 string path = AssetDatabase.GetAssetPath(texture);
                 sprites.AddRange(AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>());
             }
+
+            CreateFromSpritesList(sprites, textures);
+        }
+
+        [MenuItem("Assets/Create/Reanimator/Simple Animation (From Textures)", true, 400)]
+        private static bool CreateFromTexturesValidation()
+        {
+            
+            return GetFilteredSelection<Texture2D>().Count > 0;
+        }
+
+        [MenuItem("Assets/Create/Reanimator/Simple Animation (From Sprites)", false, 400)]
+        private static void CreateFromSprites()
+        {
+
+            var sprites = GetFilteredSelection<Sprite>();
+            var textures = Selection.GetFiltered<Texture2D>(SelectionMode.Assets);
+
+            CreateFromSpritesList(sprites, textures.ToList());
+        }
+
+        [MenuItem("Assets/Create/Reanimator/Simple Animation (From Sprites)", true, 400)]
+        private static bool CreateFromSpritesValidation()
+        {
+            return GetFilteredSelection<Sprite>().Count > 0;
+        }
+
+        private static void CreateFromSpritesList(List<Sprite> sprites, List<Texture2D> textures)
+        {
+            var trailingNumbersRegex = new Regex(@"(\d+$)");
 
             var cels = sprites
                 .OrderBy(
@@ -47,10 +75,16 @@ namespace Aarthificial.Reanimation.Editor.Nodes
             AssetDatabase.SaveAssets();
         }
 
-        [MenuItem("Assets/Create/Reanimator/Simple Animation (From Textures)", true, 400)]
-        private static bool CreateFromTexturesValidation()
+        //Selection.GetFiltered gets Texture2D parent of Sprite so instead we write our function to avoid this
+        private static List<T> GetFilteredSelection<T>()
         {
-            return Selection.GetFiltered<Texture2D>(SelectionMode.Assets).Length > 0;
+            List<T> filtered = new List<T>();
+            foreach(var obj in Selection.objects)
+            {
+                if (obj is T t)
+                    filtered.Add(t);
+            }
+            return filtered;
         }
     }
 }
