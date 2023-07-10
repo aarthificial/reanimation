@@ -25,27 +25,6 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         static RGVIOUtility()
         {
             CreateFolder(baseReanimationPath);
-            CreateFolder(Path.Combine(baseReanimationPath, baseSwitchesFolder));
-            CreateFolder(Path.Combine(baseReanimationPath, baseSimpleAnimationsFolder));
-        }
-        private static void CreateFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path)) return;
-            string parentFolder = Path.GetRelativePath(Directory.GetParent(basePath).FullName, Directory.GetParent(path).FullName);
-            if (new DirectoryInfo(path) != new DirectoryInfo(basePath))
-            {
-                CreateFolder(parentFolder);
-            }
-            string thisFolderName = Path.GetRelativePath(parentFolder, path);
-            AssetDatabase.CreateFolder(parentFolder, thisFolderName);
-        }
-        private static string GetNodeFolder(ReanimatorNode rootNode, ReanimatorNode node)
-        {
-            string path = AssetDatabase.GetAssetPath(rootNode);
-            path = Directory.GetParent(path).Parent.FullName.Contains("Assets") ? Path.GetRelativePath(Directory.GetParent(basePath).FullName, Directory.GetParent(path).Parent.FullName)
-                : Path.GetRelativePath(Directory.GetParent(basePath).FullName, Directory.GetParent(path).FullName);
-            path = Path.Combine(path, folderByType[node.GetType()]);
-            return path;
         }
         public static string CombineFolderWithNodeFolder(string folder, ReanimatorNode node)
         {
@@ -58,8 +37,7 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         public static void CreateNode(string rootFolderPath, ReanimatorNode node)
         {
             string path = rootFolderPath;
-            CreateFolder(rootFolderPath);
-            Debug.Log(rootFolderPath + " "+Path.GetRelativePath(baseReanimationPath, rootFolderPath));
+            CreateBaseFolders(rootFolderPath);
             string nodeName = node.name;
             for (int i = 0; !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(Path.Combine(path, ToAssetName(nodeName)))); i++)
             {
@@ -75,8 +53,8 @@ namespace Aarthificial.Reanimation.Editor.GraphView
         public static bool RenameNode(ReanimatorNode rootNode, ReanimatorNode node, string newName)
         {
             string path = AssetDatabase.GetAssetPath(node);
-            if(path == null) path = Path.Combine(GetNodeFolder(rootNode, node), ToAssetName(node.name));
-            
+            if (path == null) path = Path.Combine(GetNodeFolder(rootNode, node), ToAssetName(node.name));
+
             string s = AssetDatabase.RenameAsset(path, ToAssetName(newName));
             if (s.Length > 0)
             {
@@ -90,9 +68,45 @@ namespace Aarthificial.Reanimation.Editor.GraphView
             string path = GetNodeFolder(rootNode, node);
             AssetDatabase.DeleteAsset(Path.Combine(path, ToAssetName(node.name)));
         }
+
         private static string ToAssetName(string name)
         {
             return name + ".asset";
+        }
+        private static string GetParentPath(string path)
+        {
+            return Path.GetRelativePath(Directory.GetParent(basePath).FullName, Directory.GetParent(path).FullName);
+        }
+        private static string GetGrandParentPath(string path)
+        {
+            return Path.GetRelativePath(Directory.GetParent(basePath).FullName, Directory.GetParent(path).Parent.FullName);
+        }
+        private static void CreateBaseFolders(string rootFolderPath)
+        {
+            string path = GetParentPath(rootFolderPath);
+            foreach (var p in folderByType)
+            {
+                CreateFolder(Path.Combine(path, p.Value));
+            }
+        }
+        private static void CreateFolder(string path)
+        {
+            if (AssetDatabase.IsValidFolder(path)) return;
+            string parentFolder = GetParentPath(path);
+            if (new DirectoryInfo(path) != new DirectoryInfo(basePath))
+            {
+                CreateFolder(parentFolder);
+            }
+            string thisFolderName = Path.GetRelativePath(parentFolder, path);
+            AssetDatabase.CreateFolder(parentFolder, thisFolderName);
+        }
+        private static string GetNodeFolder(ReanimatorNode rootNode, ReanimatorNode node)
+        {
+            string path = AssetDatabase.GetAssetPath(rootNode);
+            path = GetGrandParentPath(path).Contains("Assets") ? GetGrandParentPath(path)
+                : GetParentPath(path);
+            path = Path.Combine(path, folderByType[node.GetType()]);
+            return path;
         }
     }
 }
